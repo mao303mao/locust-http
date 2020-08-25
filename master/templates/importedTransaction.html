@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="./static/layui/css/layui.css" media="all">
+</head>
+<body>
+{% import '_macro.html' as mcr %}
+<form class="layui-form layui-form-pane" action="/saveTrans" method="post" id="form-savetrans">
+    <div style="padding: 5px 0 0 15px;">
+        <button type="button" class="layui-btn layui-btn-primary" id="btn-import">导入</button>
+        <button type="button" class="layui-btn layui-btn-primary" id="btn-reset">重置</button>
+    </div>
+    <fieldset class="layui-elem-field layui-field-title" style="">
+        <legend>全局配置及前置处理</legend>
+    </fieldset>
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div class="layui-form-item">
+                <input name="PreTaskMark" type="hidden">
+                <input name="TestTaskIdMark" type="hidden">
+                <input name="TestTaskMark" type="hidden">
+                <div class="layui-inline">
+                    <label class="layui-form-label">全局Session</label>
+                    <div class="layui-input-block">
+                        {% if transation.isSession %}
+                        <input type="radio" name="isSession" value="1" title="是" checked="">
+                        <input type="radio" name="isSession" value="0" title="否">
+                        {% else %}
+                        <input type="radio" name="isSession" value="1" title="是">
+                        <input type="radio" name="isSession" value="0" title="否" checked="">
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">Http代理</label>
+                    <input type="text" name="HttpProxy" lay-verify="ipv4" autocomplete="off"
+                           placeholder="例: 192.168.22.222:8888" class="layui-input" style="width:200px"
+                           value="{{ transation.HttpProxy }}"
+                    >
+                </div>
+                <div class="layui-inline">
+                    <b style="margin-left:15px">全局前置处理</b>
+                    <div class="layui-btn-group " style="margin-top:-4px">
+                        <button type="button" style="margin-left: 10px; font-weight: bold;"
+                                class="layui-btn layui-btn-xs layui-btn-primary"
+                                onclick="addPreTask()" title="添加新的前置处理项">
+                            <i class="layui-icon">&#xe654;</i>
+                        </button>
+                        <button type="button" style="margin-left: 10px; font-weight: bold;"
+                                class="layui-btn layui-btn-xs layui-btn-primary"
+                                onclick="delLastPreTask()" title="删除最后的前置处理项">
+                            <i class="layui-icon">&#xe67e;</i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+            <div class="fakeclass-pretasks">
+                {{ mcr.prtask(transation.PreTask,"pretask") }}
+            </div>
+        </div>
+    </div>
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 15px;">
+        <legend>测试事务的维护
+            <div class="layui-btn-group" style="margin-top:-4px">
+                <button type="button" style="margin-left: 10px; font-weight: bold; "
+                        class="layui-btn layui-btn-xs layui-btn-normal"
+                        onclick="addTestTask()" title="添加新的事务">
+                    <i class="layui-icon">&#xe654;</i>
+                </button>
+            </div>
+        </legend>
+    </fieldset>
+    <div class="fakeclass-testtasks">
+        {%- for mtask in transation.MainTask if transation.MainTask -%}
+        <div class="layui-card">
+            <div class="layui-card-header">
+                <button type="button" style="margin-left: 10px; font-weight: bold;"
+                        class="layui-btn layui-btn-xs layui-btn-normal"
+                        onclick="delTestTask(this,{{loop.index}})" title="删除该事务">
+                    <i class="layui-icon">&#xe67e;</i>
+                </button>
+                <b style="margin: 0 20px 0 15px; color:blue ; font-size:15px;">事务-{{loop.index}}</b>
+            </div>
+            <div class="layui-card-body">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">权重</label>
+                        <input placeholder="数字" name="testtask-{{loop.index}}-taskWeight" lay-verify="required|number"
+                               autocomplete="off" value="{{ mtask.TaskWeight }}"
+                               style="width:140px" class="layui-input" type="text">
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">事务名称</label>
+                        <input placeholder="" name="testtask-{{loop.index}}-TaskName" lay-verify="required"
+                               autocomplete="off" value="{{ mtask.TaskName }}"
+                               style="width:200px" class="layui-input" type="text">
+                    </div>
+                    <div class="layui-inline">
+                        <b style="margin-left:15px">事务内前置处理</b>
+                        <div class="layui-btn-group" style="margin-top:-2px">
+                            <button type="button" style="margin-left: 10px; font-weight: bold;"
+                                    class="layui-btn layui-btn-xs layui-btn-primary"
+                                    onclick="addPreWork({{loop.index}})" title="添加新的事务前置处理">
+                                <i class="layui-icon">&#xe654;</i>
+                            </button>
+                            <button type="button" style="margin-left: 10px; font-weight: bold;"
+                                    class="layui-btn layui-btn-xs layui-btn-primary"
+                                    onclick="delLastPreWork({{loop.index}})" title="删除最后的事务前置处理">
+                                <i class="layui-icon">&#xe67e;</i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="fakeclass-prework-{{loop.index}}">
+                     {{ mcr.prtask(mtask.PreWork,"testtask-"~loop.index~"-prework") }}
+                </div>
+                {{ mcr.testwork(mtask.TestWork,loop.index) }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="layui-form-item" style="margin-top:25px">
+        <div class="layui-input-block">
+            <button type="button" class="layui-btn layui-btn-normal" lay-submit="" lay-filter="backup"
+                    id="btn-backup-trans">备份
+            </button>
+            <button type="submit" class="layui-btn layui-btn-danger" lay-submit="" lay-filter="save"
+                    id="btn-save-trans">保存
+            </button>
+        </div>
+    </div>
+</form>
+<script type="text/javascript" src="./static/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="./static/layui/layui.all.js"></script>
+<script type="text/javascript" src="./static/transaction.js"></script>
+<script>
+    window.PreTaskMark={{transMark.PreTaskMark}};
+    window.TestTaskId={{transMark.TestTaskId}};
+    window.TestTaskIdMark={{transMark.TestTaskIdMark}};
+    window.TestTaskMark={{transMark.TestTaskMark}};
+    layui.form.render();
+</script>
+<style>
+    body{
+        background-color: #eaeaea;
+    }
+    .http-request{
+        border: 1.5px solid #009688;
+        margin: 8px;
+        padding: 8px;
+    }
+    .http-request-pre{
+        border: 1px dashed #1e9fff;
+        margin: 8px;
+        padding: 8px;
+    }
+
+
+</style>
+</body>
+</html>

@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+option go_package = ".;boomerCall";
+
+service BoomerCallService {
+    rpc InitBommer(InitBommerRequest)returns(BoomerCallResponse){}
+    rpc EndBommer(EndBommerRequest)returns(BoomerCallResponse){}
+
+}
+
+message InitBommerRequest {
+    message SaveParamAction {
+        int32 SaveType = 1; // 0-HTML-XPATH解析；1-JSON-解析; 2-文本正则匹配; 3-保存固定字符串; 4-范围内随机整数
+        string ParamName = 2; // 全局变量名称
+        string RuleValue = 3;
+    }
+    message AssertAction { 
+        int32 AssertType = 1; // 0-状态码等于; 1-响应内容字节长度大于；2-响应内容直接长度等于；3-响应内容直接长度小于
+        int32 RuleValue = 2;
+    }
+    message HttpRequest {   
+      string UrlPath = 1;
+      string Method = 2;
+      map<string, string> Headers = 3;
+      map<string, string> DictData = 4;
+      map<string, string> Params = 5;
+      string RawData = 6;
+      string JsonData = 7;
+      repeated SaveParamAction SaveParamChain = 8; 
+      repeated AssertAction AssertChain = 9;
+    }
+    message TestTask {
+        string TaskName = 1;
+        int32 TaskWeight = 2;
+        repeated  HttpRequest PreWork = 3; // 准备工作请求，比如获取token
+        HttpRequest TestWork = 4; // 主要性能测试任务
+    }
+    bool isSession = 1;
+    repeated  HttpRequest PreTask = 2; // 前置任务
+    repeated TestTask MainTask = 3; // 测试任务
+    string LocustMaster = 4;
+    string HttpProxy = 5;
+}
+
+message EndBommerRequest {
+
+}
+
+message BoomerCallResponse {
+    bool status = 1;
+    string message = 2;
+}
+
+// protoc --go_out=plugins=grpc:. *.proto
+// protoc --go_out=plugins=grpc:{输出目录}  {proto文件}
+
+// python3 -m grpc_tools.protoc --python_out=. --grpc_python_out=. -I. *.proto
+//   --python_out=. : 编译生成处理 protobuf 相关的代码的路径, 这里生成到当前目录
+//   --grpc_python_out=. : 编译生成处理 grpc 相关的代码的路径, 这里生成到当前目录
+//   -I. *.proto : proto 文件的路径, 这里的 proto 文件在当前目录

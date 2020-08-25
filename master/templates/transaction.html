@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="./static/layui/css/layui.css" media="all">
+</head>
+<body>
+<form class="layui-form layui-form-pane" method="post" id="form-savetrans">
+    <div style="padding: 5px 0 0 15px;">
+        <button type="button" class="layui-btn layui-btn-primary" id="btn-import">导入</button>
+        <button type="button" class="layui-btn layui-btn-primary" id="btn-reset">重置</button>
+    </div>
+    <fieldset class="layui-elem-field layui-field-title" style="">
+        <legend>全局配置</legend>
+    </fieldset>
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div class="layui-form-item">
+                <input name="PreTaskMark" type="hidden">
+                <input name="TestTaskIdMark" type="hidden">
+                <input name="TestTaskMark" type="hidden">
+                <div class="layui-inline">
+                    <label class="layui-form-label">全局Session</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="isSession" value="1" title="是" checked="">
+                        <input type="radio" name="isSession" value="0" title="否">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">Http代理</label>
+                    <input type="text" name="HttpProxy" lay-verify="ipv4" autocomplete="off"
+                           placeholder="例: 192.168.22.222:8888" class="layui-input" style="width:200px">
+                </div>
+                <div class="layui-inline">
+                    <b style="margin-left:15px">全局前置处理</b>
+                    <div class="layui-btn-group " style="margin-top:-4px">
+                        <button type="button" style="margin-left: 10px; font-weight: bold;"
+                                class="layui-btn layui-btn-xs layui-btn-primary"
+                                onclick="addPreTask()" title="添加新的前置处理项">
+                            <i class="layui-icon">&#xe654;</i>
+                        </button>
+                        <button type="button" style="margin-left: 10px; font-weight: bold;"
+                                class="layui-btn layui-btn-xs layui-btn-primary"
+                                onclick="delLastPreTask()" title="删除最后的前置处理项">
+                            <i class="layui-icon">&#xe67e;</i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="fakeclass-pretasks"></div>
+        </div>
+    </div>
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 15px;">
+        <legend>测试事务的维护
+            <div class="layui-btn-group" style="margin-top:-4px">
+                <button type="button" style="margin-left: 10px; font-weight: bold; "
+                        class="layui-btn layui-btn-xs layui-btn-normal"
+                        onclick="addTestTask()" title="添加新的事务">
+                    <i class="layui-icon">&#xe654;</i>
+                </button>
+            </div>
+        </legend>
+    </fieldset>
+    <div class="fakeclass-testtasks">
+        <div class="layui-card">
+            <div class="layui-card-header">
+                <button type="button" style="margin-left: 10px; font-weight: bold;"
+                        class="layui-btn layui-btn-xs layui-btn-normal"
+                        onclick="delTestTask(this,1)" title="删除该事务">
+                    <i class="layui-icon">&#xe67e;</i>
+                </button>
+                <b style="margin: 0 20px 0 15px; color:blue ; font-size:15px;">事务-1</b>
+            </div>
+            <div class="layui-card-body">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">权重</label>
+                        <input placeholder="数字" name="testtask-1-taskWeight" lay-verify="required|number"
+                               autocomplete="off"
+                               style="width:140px" class="layui-input" type="text">
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">事务名称</label>
+                        <input placeholder="" name="testtask-1-TaskName" lay-verify="required" autocomplete="off"
+                               style="width:200px" class="layui-input" type="text">
+                    </div>
+                    <div class="layui-inline">
+                        <b style="margin-left:15px">事务内前置处理</b>
+                        <div class="layui-btn-group" style="margin-top:-2px">
+                            <button type="button" style="margin-left: 10px; font-weight: bold;"
+                                    class="layui-btn layui-btn-xs layui-btn-primary"
+                                    onclick="addPreWork(1)" title="添加新的事务前置处理">
+                                <i class="layui-icon">&#xe654;</i>
+                            </button>
+                            <button type="button" style="margin-left: 10px; font-weight: bold;"
+                                    class="layui-btn layui-btn-xs layui-btn-primary"
+                                    onclick="delLastPreWork(1)" title="删除最后的事务前置处理">
+                                <i class="layui-icon">&#xe67e;</i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="fakeclass-prework-1">
+                </div>
+                <div class="http-request">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">Method</label>
+                            <div class="layui-input-inline" style="width: 80px;">
+                                <select name="testwork-1-method">
+                                    <option value="Get">Get</option>
+                                    <option value="Post">Post</option>
+                                </select>
+                            </div>
+                            <label class="layui-form-mid">URL</label>
+                            <div class="layui-input-inline" style="width: 600px;">
+                                <input type="text" lay-verify="required" name="testwork-1-urlPath"
+                                       placeholder="参数用{@参数名@}代替" autocomplete="off"
+                                       class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-tab layui-tab-brief">
+                        <ul class="layui-tab-title">
+                            <li class="layui-this">请求头设置</li>
+                            <li>URL参数</li>
+                            <li>Form(字段名不同)</li>
+                            <li>Json格式</li>
+                            <li>Raw内容</li>
+                            <li><i class="layui-icon" style="color:green; ">&#x1005;</i>响应断言</li>
+                        </ul>
+                        <div class="layui-tab-content">
+                            <div class="layui-tab-item layui-show">
+                                <label class="layui-form-mid">请求头格式：名称+对应值</label>
+                                <button type="button" class="layui-btn layui-btn-warm layui-btn-sm " title="添加"
+                                        onclick="addKeyValue(this,'testwork-1-headers')"><i
+                                        class="layui-icon">&#xe654;</i>
+                                </button>
+                            </div>
+                            <div class="layui-tab-item">
+                                <label class="layui-form-mid">Params格式：名称+对应值</label>
+                                <button type="button" class="layui-btn layui-btn-warm layui-btn-sm " title="添加"
+                                        onclick="addKeyValue(this,'testwork-1-params')"><i
+                                        class="layui-icon">&#xe654;</i>
+                                </button>
+                            </div>
+                            <div class="layui-tab-item">
+                                <label class="layui-form-mid">FORM字段格式：名称+对应值</label>
+                                <button type="button" class="layui-btn layui-btn-warm layui-btn-sm " title="添加"
+                                        onclick="addKeyValue(this,'testwork-1-dictdata')"><i
+                                        class="layui-icon">&#xe654;</i>
+                                </button>
+                            </div>
+                            <div class="layui-tab-item">
+                                <div class="layui-form-item layui-form-text">
+                                    <label class="layui-form-label">Json内容</label>
+                                    <div class="layui-input-block">
+                                        <textarea name="testwork-1-jsondata" placeholder="请输入Json内容,参数用{@参数名@}代替"
+                                                  class="layui-textarea"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="layui-tab-item">
+                                <div class="layui-form-item layui-form-text">
+                                    <label class="layui-form-label">Raw内容</label>
+                                    <div class="layui-input-block">
+                                        <textarea name="testwork-1-rawdata" placeholder="请输入Raw内容,参数用{@参数名@}代替"
+                                                  class="layui-textarea"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="layui-tab-item">
+                                <label class="layui-form-mid">断言格式：判断类型+比较值</label>
+                                <button type="button" class="layui-btn layui-btn-warm layui-btn-sm " title="添加"
+                                        onclick="addAssert(this,'testwork-1')"><i class="layui-icon">&#xe654;</i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-form-item" style="margin-top:25px">
+        <div class="layui-input-block">
+            <button type="button" class="layui-btn layui-btn-normal" lay-submit="" lay-filter="backup"
+                    id="btn-backup-trans">备份
+            </button>
+            <button type="submit" class="layui-btn layui-btn-danger" lay-submit="" lay-filter="save"
+                    id="btn-save-trans">保存
+            </button>
+        </div>
+    </div>
+</form>
+<script type="text/javascript" src="./static/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="./static/layui/layui.all.js"></script>
+<script type="text/javascript" src="./static/transaction.js"></script>
+<script>
+    window.PreTaskMark=0;
+    window.TestTaskId=1;
+    window.TestTaskMark=[0];
+    window.TestTaskIdMark=[1];
+</script>
+<style>
+    body{
+        background-color: #eaeaea;
+    }
+    .http-request{
+        border: 1.5px solid #009688;
+        margin: 8px;
+        padding: 8px;
+    }
+    .http-request-pre{
+        border: 1px dashed #1e9fff;
+        margin: 8px;
+        padding: 8px;
+    }
+
+
+</style>
+</body>
+</html>

@@ -1,0 +1,438 @@
+{# 定义宏 #}
+{% macro prtask(preTasks,prefix) %}
+{% if preTasks %}
+{%- for ptask in preTasks -%}
+{% set xIndex=loop.index %}
+<div class="http-request-pre">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">Method</label>
+            <div class="layui-input-inline" style="width: 80px;">
+                <select name="{{prefix}}-{{ xIndex }}-method">
+                    {% if ptask.Method=="Get" %}
+                    <option value="Get" selected>Get</option>
+                    {% else %}
+                    <option value="Get">Get</option>
+                    {% endif %}
+                    {% if ptask.Method=="Post" %}
+                    <option value="Post" selected>Post</option>
+                    {% else %}
+                    <option value="Post">Post</option>
+                    {% endif %}
+                </select>
+            </div>
+            <label class="layui-form-mid">URL</label>
+            <div class="layui-input-inline" style="width: 600px;">
+                <input type="text" name="{{prefix}}-{{ xIndex }}-urlPath" placeholder="参数用{@参数名@}代替"
+                       autocomplete="off"
+                       class="layui-input" value="{{ ptask.UrlPath }}">
+            </div>
+        </div>
+    </div>
+    <div class="layui-tab layui-tab-brief">
+        <ul class="layui-tab-title">
+            <li class="layui-this">请求头设置</li>
+            <li class="">URL参数</li>
+            <li class="">Form(字段名不同)</li>
+            <li class="">Json格式</li>
+            <li class="">Raw内容</li>
+            <li class=""><i class="layui-icon" style="color:green; ">&#x1005;</i>响应断言</li>
+            <li class=""><i class="layui-icon" style="color:blue; ">&#xe641;</i>保存参数</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <label class="layui-form-mid">请求头格式：名称+对应值</label>
+                <button type="button" class="layui-btn layui-btn-warm layui-btn-sm " title="添加"
+                        onclick="addKeyValue(this,'{{prefix}}-{{xIndex}}-headers')"><i
+                        class="layui-icon">&#xe654;</i>
+                </button>
+                {% if ptask.Headers %}
+                {%- for key,value in ptask.Headers.items() %}
+                <div style="padding: 10px 0 0 80px;" class="keyvalue-component">
+                    <div class="layui-inline">
+                        <div class="layui-input-inline" style="width: 200px;">
+                            <input type="text" lay-verify="required" name="{{prefix}}-{{ xIndex }}-headers-key"
+                                   placeholder="key" autocomplete="off" class="layui-input" value="{{ key }}">
+                        </div>
+                        <div class="layui-input-inline" style="width: 400px;">
+                            <input type="text" name="{{prefix}}-{{ xIndex }}-headers-value"
+                                   placeholder="value,参数用{@参数名@}代替" autocomplete="off" class="layui-input"
+                                   value="{{ value }}">
+                        </div>
+                        <button type="button" class="layui-btn layui-btn-warm layui-btn-sm" title="删除"
+                                onclick="delKeyValue(this)"><i class="layui-icon">&#xe67e;</i></button>
+                    </div>
+                </div>
+                {%- endfor -%}
+                {% endif %}
+            </div>
+            <div class="layui-tab-item">
+                <label class="layui-form-mid">Params格式：名称+对应值</label>
+                <button type="button" class="layui-btn layui-btn-warm layui-btn-sm " title="添加"
+                        onclick="addKeyValue(this,'{{prefix}}-{{ xIndex }}-params')"><i
+                        class="layui-icon">&#xe654;</i>
+                </button>
+                {% if ptask.Params %}
+                {%- for key,value in ptask.Params.items() -%}
+                <div style="padding: 10px 0 0 80px;" class="keyvalue-component">
+                    <div class="layui-inline">
+                        <div class="layui-input-inline" style="width: 200px;">
+                            <input type="text" lay-verify="required" name="{{prefix}}-{{ xIndex }}-params-key"
+                                   placeholder="key" autocomplete="off" class="layui-input" value="{{ key }}">
+                        </div>
+                        <div class="layui-input-inline" style="width: 400px;">
+                            <input type="text" name="{{prefix}}-{{xIndex }}-params-value"
+                                   placeholder="value,参数用{@参数名@}代替" autocomplete="off" class="layui-input"
+                                   value="{{ value }}">
+                        </div>
+                        <button type="button" class="layui-btn layui-btn-warm layui-btn-sm" title="删除"
+                                onclick="delKeyValue(this)"><i class="layui-icon">&#xe67e;</i></button>
+                    </div>
+                </div>
+                {%- endfor -%}
+                {% endif %}
+            </div>
+            <div class="layui-tab-item">
+                <label class="layui-form-mid">FORM字段格式：名称+对应值</label>
+                <button type="button" class="layui-btn layui-btn-warm layui-btn-sm " title="添加"
+                        onclick="addKeyValue(this,'{{prefix}}-{{ xIndex }}-dictdata')"><i class="layui-icon">&#xe654;</i>
+                </button>
+                {% if ptask.DictData %}
+                {%- for key,value in ptask.DictData.items() -%}
+                <div style="padding: 10px 0 0 80px;" class="keyvalue-component">
+                    <div class="layui-inline">
+                        <div class="layui-input-inline" style="width: 200px;">
+                            <input type="text" lay-verify="required"
+                                   name="{{prefix}}-{{xIndex}}-dictdata-key"
+                                   placeholder="key" autocomplete="off" class="layui-input" value="{{ key }}">
+                        </div>
+                        <div class="layui-input-inline" style="width: 400px;">
+                            <input type="text" name="{{prefix}}-{{ xIndex }}-dictdata-value"
+                                   placeholder="value,参数用{@参数名@}代替" autocomplete="off" class="layui-input"
+                                   value="{{ value }}">
+                        </div>
+                        <button type="button" class="layui-btn layui-btn-warm layui-btn-sm" title="删除"
+                                onclick="delKeyValue(this)"><i class="layui-icon">&#xe67e;</i></button>
+                    </div>
+                </div>
+                {%- endfor -%}
+                {% endif %}
+            </div>
+            <div class="layui-tab-item">
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">Json内容</label>
+                    <div class="layui-input-block">
+                                    <textarea name="{{prefix}}-{{ xIndex }}-jsondata"
+                                              placeholder="请输入Json内容,参数用{@参数名@}代替"
+                                              class="layui-textarea">{{ ptask.JsonData }}</textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-tab-item">
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">Raw内容</label>
+                    <div class="layui-input-block">
+                                    <textarea name="{{prefix}}-{{ xIndex }}-rawdata"
+                                              placeholder="请输入Raw内容,参数用{@参数名@}代替"
+                                              class="layui-textarea">{{ ptask.RawData }}</textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-tab-item">
+                <label class="layui-form-mid">断言格式：判断类型+比较值</label>
+                <button type="button" class="layui-btn layui-btn-warm layui-btn-sm " title="添加"
+                        onclick="addAssert(this,'{{prefix}}-{{ xIndex }}')"><i class="layui-icon">&#xe654;</i>
+                </button>
+                {% if ptask.AssertChain%}
+                {%- for tac in ptask.AssertChain -%}
+                <div style="padding: 10px 0 0 80px;" class="assert-component">
+                    <div class="layui-inline">
+                        <div class="layui-input-inline" style="width: 200px;">
+                            <select name="{{prefix}}-{{ xIndex }}-assertType" lay-verify="required">
+                                {% if tac.AssertType==0 %}
+                                <option value="0" selected>响应状态码=</option>
+                                {% else %}
+                                <option value="0">响应状态码=</option>
+                                {% endif %}
+                                {% if tac.AssertType==1 %}
+                                <option value="1" selected>响应字节长度&lt;</option>
+                                {% else %}
+                                <option value="1">响应字节长度&lt;</option>
+                                {% endif %}
+                                {% if tac.AssertType==2 %}
+                                <option value="2" selected>响应字节长度=</option>
+                                {% else %}
+                                <option value="2">响应字节长度=</option>
+                                {% endif %}
+                                {% if tac.AssertType==3 %}
+                                <option value="3" selected>响应字节长度&gt;</option>
+                                {% else %}
+                                <option value="3">响应字节长度&gt;</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                        <div class="layui-input-inline" style="width: 400px;">
+                            <input type="text" name="{{prefix}}-{{ xIndex }}-assertValue"
+                                   lay-verify="required|number"
+                                   placeholder="比较值" autocomplete="off" class="layui-input" value="{{ tac.RuleValue }}">
+                        </div>
+                        <button type="button" class="layui-btn layui-btn-warm layui-btn-sm" title="删除"
+                                onclick="delAssert(this)"><i class="layui-icon">&#xe67e;</i></button>
+                    </div>
+                </div>
+                {%- endfor -%}
+                {% endif %}
+            </div>
+            <div class="layui-tab-item">
+                <label class="layui-form-mid">保存参数：保存类型+参数名称+取值规则</label>
+                <button type="button" class="layui-btn layui-btn-warm layui-btn-sm " title="添加"
+                        onclick="addSaveParam(this,'{{prefix}}-{{ xIndex }}')"><i class="layui-icon"></i>
+                </button>
+                {% if ptask.SaveParamChain %}
+                {%- for spc in ptask.SaveParamChain -%}
+                <div style="padding: 10px 0 0 80px;" class="saveParam-component">
+                    <div class="layui-inline">
+                        <div class="layui-input-inline" style="width: 200px;">
+                            <select name="{{prefix}}-{{ xIndex }}-saveType" lay-verify="required"
+                                    lay-filter="saveType">
+                                {% if spc.SaveType==0 %}
+                                <option value="0" selected>XPATH解析HTML</option>
+                                {% else %}
+                                <option value="0">XPATH解析HTML</option>
+                                {% endif %}
+                                {% if spc.SaveType==1 %}
+                                <option value="1" selected>点分割解析JSON</option>
+                                {% else %}
+                                <option value="1">点分割解析JSON</option>
+                                {% endif %}
+                                {% if spc.SaveType==2 %}
+                                <option value="2" selected>文本正则匹配</option>
+                                {% else %}
+                                <option value="2">文本正则匹配</option>
+                                {% endif %}
+                                {% if spc.SaveType==3 %}
+                                <option value="3" selected>保存固定字符串</option>
+                                {% else %}
+                                <option value="3">保存固定字符串</option>
+                                {% endif %}
+                                {% if spc.SaveType==4 %}
+                                <option value="4" selected>范围内随机整数</option>
+                                {% else %}
+                                <option value="4">范围内随机整数</option>
+                                {% endif %}
+                                {% if spc.SaveType==5 %}
+                                <option value="5" selected>随机字符串</option>
+                                {% else %}
+                                <option value="5">随机字符串</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                        <div class="layui-input-inline" style="width: 200px;">
+                            <input type="text" name="{{prefix}}-{{ xIndex }}-paramName" lay-verify="required"
+                                   placeholder="参数名称" autocomplete="off" class="layui-input"
+                                   value="{{ spc.ParamName }}">
+                        </div>
+                        <div class="layui-input-inline" style="width: 400px;">
+                            <input type="text" name="{{prefix}}-{{ xIndex }}-ruleValue" lay-verify="required"
+                                   placeholder="例://input[@name='a']/@value或//p[@name='b']/text()"
+                                   autocomplete="off" class="layui-input fake-ruleValue" value="{{ spc.RuleValue }}">
+                        </div>
+                        <button type="button" class="layui-btn layui-btn-warm layui-btn-sm" title="删除"
+                                onclick="delSaveParam(this)"><i class="layui-icon">&#xe67e;</i></button>
+                    </div>
+                </div>
+                {%- endfor -%}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{%- endfor -%}
+{% endif %}
+{% endmacro %}
+
+
+{% macro testwork(testwork,index) %}
+<div class="http-request">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">Method</label>
+            <div class="layui-input-inline" style="width: 80px;">
+                <select name="testwork-{{index}}-method">
+                    {% if testwork.Method=="Get" %}
+                    <option value="Get" selected>Get</option>
+                    {% else %}
+                    <option value="Get">Get</option>
+                    {% endif %}
+                    {% if testwork.Method=="Post" %}
+                    <option value="Post" selected>Post</option>
+                    {% else %}
+                    <option value="Post">Post</option>
+                    {% endif %}
+                </select>
+            </div>
+            <label class="layui-form-mid">URL</label>
+            <div class="layui-input-inline" style="width: 600px;">
+                <input type="text" lay-verify="required" name="testwork-{{index}}-urlPath"
+                       placeholder="参数用{@参数名@}代替" autocomplete="off"
+                       class="layui-input" value="{{testwork.UrlPath}}">
+            </div>
+        </div>
+    </div>
+    <div class="layui-tab layui-tab-brief">
+        <ul class="layui-tab-title">
+            <li class="layui-this">请求头设置</li>
+            <li>URL参数</li>
+            <li>Form(字段名不同)</li>
+            <li>Json格式</li>
+            <li>Raw内容</li>
+            <li><i class="layui-icon" style="color:green; ">&#x1005;</i>响应断言</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <label class="layui-form-mid">请求头格式：名称+对应值</label>
+                <button type="button" class="layui-btn layui-btn-warm layui-btn-sm " title="添加"
+                        onclick="addKeyValue(this,'testwork-{{index}}-headers')"><i
+                        class="layui-icon">&#xe654;</i>
+                </button>
+                {% if testwork.Headers %}
+                {%- for key,value in testwork.Headers.items() %}
+                <div style="padding: 10px 0 0 80px;" class="keyvalue-component">
+                    <div class="layui-inline">
+                        <div class="layui-input-inline" style="width: 200px;">
+                            <input type="text" lay-verify="required" name="testwork-{{ loop.index}}-headers-key"
+                                   placeholder="key" autocomplete="off" class="layui-input" value="{{ key }}">
+                        </div>
+                        <div class="layui-input-inline" style="width: 400px;">
+                            <input type="text" name="testwork-{{ loop.index}}-headers-value"
+                                   placeholder="value,参数用{@参数名@}代替" autocomplete="off" class="layui-input"
+                                   value="{{ value }}">
+                        </div>
+                        <button type="button" class="layui-btn layui-btn-warm layui-btn-sm" title="删除"
+                                onclick="delKeyValue(this)"><i class="layui-icon">&#xe67e;</i></button>
+                    </div>
+                </div>
+                {%- endfor -%}
+                {% endif %}
+            </div>
+            <div class="layui-tab-item">
+                <label class="layui-form-mid">Params格式：名称+对应值</label>
+                <button type="button" class="layui-btn layui-btn-warm layui-btn-sm " title="添加"
+                        onclick="addKeyValue(this,'testwork-{{index}}-params')"><i
+                        class="layui-icon">&#xe654;</i>
+                </button>
+                {% if testwork.Params %}
+                {%- for key,value in testwork.Params.items() -%}
+                <div style="padding: 10px 0 0 80px;" class="keyvalue-component">
+                    <div class="layui-inline">
+                        <div class="layui-input-inline" style="width: 200px;">
+                            <input type="text" lay-verify="required" name="{{prefix}}-{{ loop.index }}-params-key"
+                                   placeholder="key" autocomplete="off" class="layui-input" value="{{ key }}">
+                        </div>
+                        <div class="layui-input-inline" style="width: 400px;">
+                            <input type="text" name="{{prefix}}-{{ loop.index }}-params-value"
+                                   placeholder="value,参数用{@参数名@}代替" autocomplete="off" class="layui-input"
+                                   value="{{ value }}">
+                        </div>
+                        <button type="button" class="layui-btn layui-btn-warm layui-btn-sm" title="删除"
+                                onclick="delKeyValue(this)"><i class="layui-icon">&#xe67e;</i></button>
+                    </div>
+                </div>
+                {%- endfor -%}
+                {% endif %}
+            </div>
+            <div class="layui-tab-item">
+                <label class="layui-form-mid">FORM字段格式：名称+对应值</label>
+                <button type="button" class="layui-btn layui-btn-warm layui-btn-sm " title="添加"
+                        onclick="addKeyValue(this,'testwork-{{index}}-dictdata')"><i
+                        class="layui-icon">&#xe654;</i>
+                </button>
+                {% if testwork.DictData %}
+                {%- for key,value in testwork.DictData.items() -%}
+                <div style="padding: 10px 0 0 80px;" class="keyvalue-component">
+                    <div class="layui-inline">
+                        <div class="layui-input-inline" style="width: 200px;">
+                            <input type="text" lay-verify="required"
+                                   name="{{prefix}}-{{ loop.index }}-dictdata-key"
+                                   placeholder="key" autocomplete="off" class="layui-input" value="{{ key }}">
+                        </div>
+                        <div class="layui-input-inline" style="width: 400px;">
+                            <input type="text" name="{{prefix}}-{{ loop.index }}-dictdata-value"
+                                   placeholder="value,参数用{@参数名@}代替" autocomplete="off" class="layui-input"
+                                   value="{{ value }}">
+                        </div>
+                        <button type="button" class="layui-btn layui-btn-warm layui-btn-sm" title="删除"
+                                onclick="delKeyValue(this)"><i class="layui-icon">&#xe67e;</i></button>
+                    </div>
+                </div>
+                {%- endfor -%}
+                {% endif %}
+            </div>
+            <div class="layui-tab-item">
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">Json内容</label>
+                    <div class="layui-input-block">
+                                        <textarea name="testwork-{{index}}-jsondata" placeholder="请输入Json内容,参数用{@参数名@}代替"
+                                                  class="layui-textarea">{{ testwork.JsonData }}</textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-tab-item">
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">Raw内容</label>
+                    <div class="layui-input-block">
+                                        <textarea name="testwork-{{index}}-rawdata" placeholder="请输入Raw内容,参数用{@参数名@}代替"
+                                                  class="layui-textarea">{{ testwork.RawData }}</textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-tab-item">
+                <label class="layui-form-mid">断言格式：判断类型+比较值</label>
+                <button type="button" class="layui-btn layui-btn-warm layui-btn-sm " title="添加"
+                        onclick="addAssert(this,'testwork-{{index}}')"><i class="layui-icon">&#xe654;</i>
+                </button>
+                {% if testwork.AssertChain%}
+                {%- for tac in testwork.AssertChain -%}
+                <div style="padding: 10px 0 0 80px;" class="assert-component">
+                    <div class="layui-inline">
+                        <div class="layui-input-inline" style="width: 200px;">
+                            <select name="testwork-{{index}}-assertType" lay-verify="required">
+                                {% if tac.AssertType==0 %}
+                                <option value="0" selected>响应状态码=</option>
+                                {% else %}
+                                <option value="0">响应状态码=</option>
+                                {% endif %}
+                                {% if tac.AssertType==1 %}
+                                <option value="1" selected>响应字节长度&lt;</option>
+                                {% else %}
+                                <option value="1">响应字节长度&lt;</option>
+                                {% endif %}
+                                {% if tac.AssertType==2 %}
+                                <option value="2" selected>响应字节长度=</option>
+                                {% else %}
+                                <option value="2">响应字节长度=</option>
+                                {% endif %}
+                                {% if tac.AssertType==3 %}
+                                <option value="3" selected>响应字节长度&gt;</option>
+                                {% else %}
+                                <option value="3">响应字节长度&gt;</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                        <div class="layui-input-inline" style="width: 400px;">
+                            <input type="text" name="testwork-{{index}}-assertValue"
+                                   lay-verify="required|number"
+                                   placeholder="比较值" autocomplete="off" class="layui-input" value="{{ tac.RuleValue }}">
+                        </div>
+                        <button type="button" class="layui-btn layui-btn-warm layui-btn-sm" title="删除"
+                                onclick="delAssert(this)"><i class="layui-icon">&#xe67e;</i></button>
+                    </div>
+                </div>
+                {%- endfor -%}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endmacro %}
