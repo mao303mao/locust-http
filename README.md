@@ -1,8 +1,8 @@
 # locust-hazard
-  base on locust and boomer, use etcd and gRPC to push http request and make locust test tasks。
-  基于locust和boomer核心，使用基于etcd做为压测机服务发现，使用gRPC推送http请求事务描述信息，让压测机自己构造http接口测试任务。
-  使用postman类似的节目管理http请求事务描述信息。
-  目前是核心且基本框架及功能的完成，如有更多的要求比如任务隔离，执行历史管理......这就是你的事了。
+      base on locust and boomer, use etcd and gRPC to push http request and make locust test tasks。
+      基于locust和boomer核心，使用基于etcd做为压测机服务发现，使用gRPC推送http请求事务描述信息，让压测机自己构造http接口测试任务。
+      使用postman类似的节目管理http请求事务描述信息。
+      目前是核心且基本框架及功能的完成，如有更多的要求比如任务隔离，执行历史管理......这就是你的事了。
 
 ## 说明
 拷贝了原版locust的main.py及webUI和前端部分代码进行修改。
