@@ -11,7 +11,7 @@
 ## 启动参考：这里的ip、port都是例子，请根据实际情况设置
   ### 1-先启动etcd（假定服务器ip：192.168.23.222）：etcd.exe --listen-client-urls http://0.0.0.0:2379 --advertise-client-urls http://0.0.0.0:2379
   ### 2-在启动matser（假定服务器ip：192.168.23.222）：python3 main.py --master-host=192.168.23.222
-  ### 3-可以直接从web页面的压测机管理下载编译好的exe，或者编译压测机端应用程序：go build boomerHazardServer
+  ### 3-可以直接从web页面的压测机管理下载编译好的exe，或者编译压测机（worker）端应用程序：go build boomerHazardServer
   ### 4-压测机端执行此程序：boomerHazardServer.exe -EtcdAddr 192.168.23.222:2379 [-Host 压测机ip] [-Port 3000]
     
 # based open source project
