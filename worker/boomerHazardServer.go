@@ -52,17 +52,18 @@ func waitForQuit(gboomer *boomer.Boomer) {
 		}}()
 		boomerStatus=false // 结束运行
 		if !quitByClient{
+			quitSignal<-1 // 释放下面EndBommer处理协程
 			fmt.Println("事件订阅中获取了非Client关闭Boomer的消息")
-			wg.Done()
 		}
+		wg.Done()
 	})
-	go func(){ // 此处添加通过EndBommer获取强制关闭boomer信号处理的代码
+	go func(){ // 此处添加通过EndBommer获取关闭boomer信号处理的代码
 		<-quitSignal
 		fmt.Println("从管理机client获取了关闭Boomer的消息")
-		quitByClient=true
-		gboomer.Quit()
-		wg.Done()
-
+		if boomerStatus{
+			quitByClient=true
+			gboomer.Quit()
+		}
 	}()
 	wg.Wait()
 }
@@ -74,7 +75,7 @@ func (hes *BoomerCallService) InitBommer(ctx context.Context, req *proto.InitBom
 	if boomerStatus{ // 如果运行，结束（暂时不加全局锁）
 		return &proto.BoomerCallResponse{
 			Status:  false,
-			Message: fmt.Sprintf("%s--当前boomer正在运行，不需要初始化", time.Now().Format("2006-01-02 15:04:05")),
+			Message: fmt.Sprintf("%s--当前boomer正在运行，不能重复初始化", time.Now().Format("2006-01-02 15:04:05")),
 		}, nil
 	}
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -130,8 +131,8 @@ func (hes *BoomerCallService) InitBommer(ctx context.Context, req *proto.InitBom
 		taskList = append(taskList, task)
 	}
 	go func() { // 开启一个协程等待结束
-		globalBoomer.Run(taskList...)
 		boomerStatus = true // boomer正在运行
+		globalBoomer.Run(taskList...)
 		waitForQuit(globalBoomer)
 		log.Println("boomer is shut down............")
 	}()
