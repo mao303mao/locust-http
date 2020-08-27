@@ -6,7 +6,8 @@
 
 ## 说明
 拷贝了原版locust的main.py及webUI和前端部分代码进行修改。
-boomer及grequests部分地方做了小改动--主要避免异常退出。
+在boomer之上增加了gRPC服务，能解析master发来的http接口测试任务描述信息并生成boomer的任务
+boomer及grequests源码部分地方做了小改动--主要避免异常退出--如果work端编译失败，请将错的地方(主要是配置连接数上限配置)删除即可
 
 ## 启动参考：这里的ip、port都是例子，请根据实际情况设置
   ### 1-先下载etcd并启动etcd：etcd.exe --listen-client-urls http://0.0.0.0:2379 --advertise-client-urls http://0.0.0.0:2379
