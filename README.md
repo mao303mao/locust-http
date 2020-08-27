@@ -31,5 +31,5 @@ boomer及grequests源码部分地方做了小改动--主要避免异常退出--�
     pip install locust==1.1.1
   ## 前端
     layui
-# some code consulted article  from website
+# 部分代码摘抄和参考了网络上的文章，致谢
    go-etcd-grpc :"https://www.cnblogs.com/wujuntian/p/12838041.html"
