@@ -9,8 +9,9 @@ from locust import log,task,runners
 from locust.argument_parser import parse_options
 from locust.env import Environment
 from locust.log import setup_logging, greenlet_exception_logger
-from locust.stats import (print_error_report, print_percentile_stats, print_stats,
-                    stats_printer, stats_writer, write_csv_files)
+import locust.stats as stats
+from locust.stats import print_error_report, print_percentile_stats, print_stats, stats_printer, stats_history
+from locust.stats import StatsCSV, StatsCSVFileWriter
 from locust.user import User
 from locust.user.inspectuser import get_task_ratio_dict, print_task_ratio
 from locust.util.timespan import parse_timespan
@@ -115,7 +116,14 @@ def main():
     # 只使用master模式运行
     runner = environment.create_master_runner()
     runner.state=runners.STATE_STOPPED
-    main_greenlet = runner.greenlet
+
+    if options.csv_prefix:
+        stats_csv_writer = StatsCSVFileWriter(
+            environment,stats.PERCENTILES_TO_REPORT,options.csv_prefix,options.stats_history_enabled
+        )
+    else:
+        stats_csv_writer = StatsCSV(environment,stats.PERCENTILES_TO_REPORT)
+
 
     # 开启web-ui服务
     web_host = "0.0.0.0"
@@ -130,6 +138,7 @@ def main():
             auth_credentials=options.web_auth,
             tls_cert=options.tls_cert,
             tls_key=options.tls_key,
+            stats_csv_writer=stats_csv_writer,
         )
     except AuthCredentialsError:
         logger.error("Credentials supplied with --web-auth should have the format: username:password")
@@ -148,7 +157,8 @@ def main():
         stats_printer_greenlet.link_exception(greenlet_exception_handler)
 
     if options.csv_prefix:
-        gevent.spawn(stats_writer, environment, options.csv_prefix, full_history=options.stats_history_enabled).link_exception(greenlet_exception_handler)
+        gevent.spawn(stats_csv_writer.stats_writer).link_exception(greenlet_exception_handler)
+
 
 
     def shutdown():
@@ -177,8 +187,7 @@ def main():
         
         print_stats(runner.stats, current=False)
         print_percentile_stats(runner.stats)
-        if options.csv_prefix:
-            write_csv_files(environment, options.csv_prefix, full_history=options.stats_history_enabled)
+
         print_error_report(runner.stats)
         sys.exit(code)
     

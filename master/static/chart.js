@@ -7,7 +7,7 @@
             this.container = $(container);
             this.title = title;
             this.lines = lines;
-            
+            this.colors = colors;
             this.element = $('<div class="chart"></div>').css("width", "100%").appendTo(container);
             this.data = [];
             this.dates = [];
@@ -75,7 +75,7 @@
                 },
                 series: seriesData,
                 grid: {x:60, y:70, x2:40, y2:40},
-                color: colors,
+                color: this.colors,
                 toolbox: {
                     feature: {
                         saveAsImage: {
@@ -106,6 +106,72 @@
         resize() {
             this.chart.resize();
         }
+
+        reset(){
+        this.chart.setOption({
+                title: {
+                    text: this.title,
+                    x: 10,
+                    y: 10,
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: function (params) {
+                        if (!!params && params.length > 0 && !!params[0].value) {
+                            var str = params[0].name;
+                            for (var i=0; i<params.length; i++) {
+                                var param = params[i];
+                                str += '<br><span style="color:' + param.color + ';">' + param.seriesName + ': ' + param.data + '</span>';
+                            }
+                            return str;
+                        } else {
+                            return "No data";
+                        }
+                    },
+                    axisPointer: {
+                        animation: true
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    splitLine: {
+                        show: false
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            color: '#5b6f66',
+                        },
+                    },
+                    data: [],
+                },
+                yAxis: {
+                    type: 'value',
+                    boundaryGap: [0, '5%'],
+                    splitLine: {
+                        show: false
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            color: '#5b6f66',
+                        },
+                    },
+                },
+                series: [],
+                grid: {x:60, y:70, x2:40, y2:40},
+                color: this.colors,
+                toolbox: {
+                    feature: {
+                        saveAsImage: {
+                            name: this.title.replace(/\s+/g, '_').toLowerCase() + '_' + Date.parse(new Date()) / 1000,
+                            title: "Download as PNG"
+                        }
+                    }
+                }
+            },true)
+
+        }
+
+
     }
     window.LocustLineChart = LocustLineChart;
 })();

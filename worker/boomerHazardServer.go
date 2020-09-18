@@ -75,7 +75,7 @@ func (hes *BoomerCallService) InitBommer(ctx context.Context, req *proto.InitBom
 	if boomerStatus{ // 如果运行，结束（暂时不加全局锁）
 		return &proto.BoomerCallResponse{
 			Status:  false,
-			Message: fmt.Sprintf("%s--当前boomer正在运行，不能重复初始化", time.Now().Format("2006-01-02 15:04:05")),
+			Message: fmt.Sprintf("%s--当前boomer正在运行，需要重置后再创建新的事务", time.Now().Format("2006-01-02 15:04:05")),
 		}, nil
 	}
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -112,7 +112,7 @@ func (hes *BoomerCallService) InitBommer(ctx context.Context, req *proto.InitBom
 		if err!=nil{
 			return &proto.BoomerCallResponse{
 				Status:  false,
-				Message: fmt.Sprintf("%s--初始化Boomer失败，前置步骤执行失败[%s]",
+				Message: fmt.Sprintf("%s--创建Boomer事务失败，前置步骤执行失败[%s]",
 					time.Now().Format("2006-01-02 15:04:05"),err.Error()),
 			}, nil
 		}
@@ -138,7 +138,7 @@ func (hes *BoomerCallService) InitBommer(ctx context.Context, req *proto.InitBom
 	}()
 	return &proto.BoomerCallResponse{
 		Status:  true,
-		Message: fmt.Sprintf("%s--已经成功获取初始化Boomer信息", time.Now().Format("2006-01-02 15:04:05")),
+		Message: fmt.Sprintf("%s--已经成功获取创建Boomer事务请求", time.Now().Format("2006-01-02 15:04:05")),
 	}, nil
 }
 

@@ -24,6 +24,9 @@ $("a.reset-button").click(function(event) {
         rpsChart.data=[[],[]];
         responseTimeChart.data=[[],[]];
         usersChart.data=[[]];
+        window.rpsChart.reset();
+        window.responseTimeChart.reset();
+        window.usersChart.reset();
         msgtip("已经重置");
     })
     }
@@ -332,18 +335,3 @@ function reinitIframe(){
     }catch (ex){}
 }
 window.setInterval("reinitIframe()", 500);
-
-
-$("#saveReport").click( function() {
-  var target = $("#report");
-  html2canvas(target, {
-    onrendered:function(canvas) {
-        var contentWidth = canvas.width;
-        var contentHeight = canvas.height;
-        var ter=canvas.toDataURL('image/jpeg', 1.0);
-        var a = document.createElement("a");
-        $(a).attr("href",ter);
-        a.download = "快照";
-        a.click();
-    }})
-});

@@ -10,16 +10,17 @@ from itertools import chain
 from time import time
 import traceback
 import gevent
-from flask import Flask,make_response,jsonify,render_template,request,send_from_directory
+from flask import Flask,make_response,jsonify,render_template,request,send_from_directory, send_file
 from flask_basicauth import BasicAuth
 from gevent import pywsgi
-
+import datetime
 from locust import __version__ as version
 from locust import runners
 from locust.exception import AuthCredentialsError
 from locust.runners import MasterRunner
 from locust.log import greenlet_exception_logger
-from locust.stats import failures_csv,requests_csv,sort_stats
+from locust.stats import sort_stats,StatsCSV
+import locust.stats as stats_module
 from locust.util.cache import memoize
 from locust.util.rounding import proper_round
 from locust.util.timespan import parse_timespan
@@ -62,9 +63,10 @@ class WebUI:
     greenlet = None
     server = None
     etcdt = None
+    reporter_running_status=False
     """Reference to the :class:`pyqsgi.WSGIServer` instance"""
 
-    def  __init__(self,environment,host,port,masterHost,auth_credentials=None,tls_cert=None,tls_key=None):
+    def  __init__(self,environment,host,port,masterHost,auth_credentials=None,tls_cert=None,tls_key=None,stats_csv_writer=None):
         """
         Create WebUI instance and start running the web server in a separate greenlet (self.greenlet)
 
@@ -78,6 +80,7 @@ class WebUI:
         tls_key: A path to a TLS private key
         """
         environment.web_ui = self
+        self.stats_csv_writer = stats_csv_writer or StatsCSV(environment,stats_module.PERCENTILES_TO_REPORT)
         self.environment = environment
         self.host = host
         self.port = port
@@ -106,6 +109,24 @@ class WebUI:
             else:
                 raise AuthCredentialsError(
                     "Invalid auth_credentials. It should be a string in the following format: 'user.pass'")
+
+        def stats_history(self):
+            """Save current stats info to history for charts of report."""
+            while self.reporter_running_status:
+                stats = environment.runner.stats
+                if not stats.total.use_response_times_cache:
+                    break
+                r = {
+                    "time":                        datetime.datetime.now().strftime("%H:%M:%S"),
+                    "current_rps":                 stats.total.current_rps or 0,
+                    "current_fail_per_sec":        stats.total.current_fail_per_sec or 0,
+                    "response_time_percentile_95": stats.total.get_current_response_time_percentile(0.95) or 0,
+                    "response_time_percentile_50": stats.total.get_current_response_time_percentile(0.5) or 0,
+                    "user_count":                  environment.runner.user_count or 0,
+                }
+                stats.history.append(r)
+                gevent.sleep(5)
+            print("结束了指标历史记录任务....")
 
         def initTask(self,rpcServAddr):
             """
@@ -211,10 +232,7 @@ class WebUI:
                                    is_step_load=environment.step_load,
                                    )
 
-        @app.route('/transaction',methods=["GET"])
-        @self.auth_required_if_enabled
-        def transation():
-            return render_template("transaction.html")
+
 
 
         @app.route('/swarm',methods=["POST"])
@@ -225,6 +243,10 @@ class WebUI:
             if not  environment.runner.worker_count:
                  return jsonify({'success': False,'message': '没有可用的work, 不能运行测试'})
             assert request.method == "POST"
+            # 开启协程写入指标历史记录
+            self.reporter_running_status=True
+            gevent.spawn(stats_history,self)
+            # 开始压测任务
             user_count = int(request.form["user_count"])
             hatch_rate = float(request.form["hatch_rate"])
             run_seconds=None
@@ -258,6 +280,7 @@ class WebUI:
         @app.route('/stop')
         @self.auth_required_if_enabled
         def stop():
+            self.reporter_running_status=False #结束指标历史记录
             if environment.runner.state not in (runners.STATE_STOPPING,runners.STATE_STOPPED,runners.STATE_INIT):
                 environment.runner.stop()
             return jsonify({'success': True,'message': 'Test stopped'})
@@ -408,6 +431,11 @@ class WebUI:
             except Exception as e:
                 return jsonify({'success': False,'message': str(e)+"\n"+traceback.format_exc()})
 
+        @app.route('/transaction',methods=["GET"])
+        @self.auth_required_if_enabled
+        def transation():
+            return render_template("transaction.html")
+
         @app.route('/importedTrans',methods=['Get'])
         @self.auth_required_if_enabled
         def importedTrans():
@@ -530,31 +558,63 @@ class WebUI:
             return jsonify({'success': True,'message': '已通知压测机停止，请检查Workers中各压力机的最新情况'})
 
 
+        def _download_csv_suggest_file_name(suggest_filename_prefix):
+            """Generate csv file download attachment filename suggestion.
+
+            Arguments:
+            suggest_filename_prefix: Prefix of the filename to suggest for saving the download. Will be appended with timestamp.
+            """
+
+            return f"{suggest_filename_prefix}_{time()}.csv"
+
+        def _download_csv_response(csv_data, filename_prefix):
+            """Generate csv file download response with 'csv_data'.
+
+            Arguments:
+            csv_data: CSV header and data rows.
+            filename_prefix: Prefix of the filename to suggest for saving the download. Will be appended with timestamp.
+            """
+
+            response = make_response(csv_data)
+            response.headers["Content-type"] = "text/csv"
+            response.headers[
+                "Content-disposition"
+            ] = f"attachment;filename={_download_csv_suggest_file_name(filename_prefix)}"
+            return response
+
         @app.route("/stats/requests/csv")
         @self.auth_required_if_enabled
         def request_stats_csv():
             data = StringIO()
             writer = csv.writer(data)
-            requests_csv(self.environment.runner.stats,writer)
-            response = make_response(data.getvalue())
-            file_name = "requests_{0}.csv".format(time())
-            disposition = "attachment;filename={0}".format(file_name)
-            response.headers["Content-type"] = "text/csv"
-            response.headers["Content-disposition"] = disposition
-            return response
+            self.stats_csv_writer.requests_csv(writer)
+            return _download_csv_response(data.getvalue(),"requests")
+
+        @app.route("/stats/requests_full_history/csv")
+        @self.auth_required_if_enabled
+        def request_stats_full_history_csv():
+            options = self.environment.parsed_options
+            if options and options.stats_history_enabled:
+                return send_file(
+                    os.path.abspath(self.stats_csv_writer.stats_history_file_name()),
+                    mimetype="text/csv",
+                    as_attachment=True,
+                    attachment_filename=_download_csv_suggest_file_name("requests_full_history"),
+                    add_etags=True,
+                    cache_timeout=None,
+                    conditional=True,
+                    last_modified=None,
+                )
+
+            return make_response("Error: Server was not started with option to generate full history.",404)
 
         @app.route("/stats/failures/csv")
         @self.auth_required_if_enabled
         def failures_stats_csv():
             data = StringIO()
             writer = csv.writer(data)
-            failures_csv(self.environment.runner.stats,writer)
-            response = make_response(data.getvalue())
-            file_name = "failures_{0}.csv".format(time())
-            disposition = "attachment;filename={0}".format(file_name)
-            response.headers["Content-type"] = "text/csv"
-            response.headers["Content-disposition"] = disposition
-            return response
+            self.stats_csv_writer.failures_csv(writer)
+            return _download_csv_response(data.getvalue(),"failures")
 
         @app.route('/stats/requests')
         @self.auth_required_if_enabled
@@ -655,6 +715,67 @@ class WebUI:
         # start the web server
         self.greenlet = gevent.spawn(self.start)
         self.greenlet.link_exception(greenlet_exception_handler)
+
+        @app.route("/stats/report")
+        @self.auth_required_if_enabled
+        def stats_report():
+            stats = self.environment.runner.stats
+            if not stats or not stats.start_time or not stats.last_request_timestamp or not stats.entries:
+                return  render_template(
+                "report.html")
+
+            start_ts = stats.start_time
+            start_time = datetime.datetime.fromtimestamp(start_ts)
+            start_time = start_time.strftime("%Y-%m-%d %H:%M:%S")
+
+            end_ts = stats.last_request_timestamp
+            end_time = datetime.datetime.fromtimestamp(end_ts)
+            end_time = end_time.strftime("%Y-%m-%d %H:%M:%S")
+
+            host = None
+            if environment.host:
+                host = environment.host
+            elif environment.runner.user_classes:
+                all_hosts = set([l.host for l in environment.runner.user_classes])
+                if len(all_hosts) == 1:
+                    host = list(all_hosts)[0]
+
+            requests_statistics = list(chain(sort_stats(stats.entries),[stats.total]))
+            failures_statistics = sort_stats(stats.errors)
+            exceptions_statistics = []
+            for exc in environment.runner.exceptions.values():
+                exc["nodes"] = ", ".join(exc["nodes"])
+                exceptions_statistics.append(exc)
+
+            history = stats.history
+
+            static_js = ""
+            js_files = ["jquery-1.11.3.min.js","echarts.common.min.js","vintage.js","chart.js"]
+            for js_file in js_files:
+                path = os.path.join(os.path.dirname(__file__),"static",js_file)
+                with open(path,encoding="utf8") as f:
+                    content = f.read()
+                static_js += "// " + js_file + "\n"
+                static_js += content
+                static_js += "\n\n\n"
+
+            res = render_template(
+                "report.html",
+                int=int,
+                round=round,
+                requests_statistics=requests_statistics,
+                failures_statistics=failures_statistics,
+                exceptions_statistics=exceptions_statistics,
+                start_time=start_time,
+                end_time=end_time,
+                host=host,
+                history=history,
+                static_js=static_js,
+            )
+            if request.args.get("download"):
+                res = app.make_response(res)
+                res.headers["Content-Disposition"] = "attachment;filename=report_%s.html" % time()
+            return res
 
     def start(self):
         if self.tls_cert and self.tls_key:

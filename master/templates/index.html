@@ -43,8 +43,8 @@
                 <div class="label">失败</div>
                 <div class="value"><span id="fail_ratio"></span>%</div>
             </div>
-            <div class="top_box box_stop box_running" id="box_stop">
-                <a href="./stop" class="stop-button"><i></i>停止</a>
+            <div class="top_box box_stop" id="box_stop">
+                <a href="./stop" class="stop-button box_running"><i></i>停止</a>
             </div>
             <div class="top_box">
                 <a href="./stats/reset" class="reset-button">重置<br/>统计</a>
@@ -174,11 +174,12 @@
                 <br/>
                 <div class="boomer">
                     <button id="stopBoomer" style="margin-left:10px; background: white">全部重置</button>
-                    <button id="initBoomer" style="background: bisque">更新事务</button>
+                    <button id="initBoomer" style="background: bisque" title="提交事务前请确保对应机器非就绪状态">提交事务</button>
                 </div>
+                <p class="note">注意：<font color="yellow">提交事务</font>前请确保对应机器<font color="yellow">非使用</font>状态；更换新的事务需<font color="yellow">先重置</font>，再提交</p>
             </div>
             <div style="display:none;" id="report">
-                <div style="float:right; margin:0 10px 10px 0; "><a href="javascript:void;" id="saveReport" style="color:yellow !important; ">保存报告快照</a></div>
+                <div style="float:right; margin:0 10px 10px 0; "><a href="./stats/report" target="_blank" id="saveReport" style="color:yellow !important; ">下载报告快照</a></div>
                 <table id="stats" class="stats">
                     <thead>
                     <tr>
@@ -307,7 +308,7 @@
         <div class="padder">
             <h1>About</h1>
             <p>
-                基于原版locust修改，变成了http(s)的通用的接口压力测试平台。
+                基于原版locust-1.2.3修改，变成了http(s)的通用的接口压力测试平台。
                 前端页面增加了友好的http(s)接口维护、保存、导入功能。
                 master端以原版的locust核心不变，拷贝原版的WEBUI部分进行改造和汉化。
                 slave端基于boomer核心进行改造，改为使用gRPC服务进行压力测试任务的初始化、关闭并基于etcd做服务发现。
@@ -348,8 +349,6 @@
         <a href="#" onclick="$('.about').fadeIn();">About</a>
     </div>
 </nav>
-
-<script type="text/javascript" src="./static/html2canvas.js"></script>
 
 <script type="text/javascript" src="./static/jquery-1.11.3.min.js"></script>
 <script type="text/javascript" src="./static/jquery.jqote2.min.js"></script>
