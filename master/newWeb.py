@@ -271,6 +271,7 @@ class WebUI:
                 while count<=x: # 这种方式避免长时间休眠造成问题
                     gevent.sleep(1)
                     count+=1
+                self.reporter_running_status = False  # 结束指标历史记录
                 environment.runner.stop()
             if run_seconds and run_seconds>=30:
                 gevent.spawn(stopRunAfterSecs,run_seconds)
