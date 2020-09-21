@@ -534,6 +534,12 @@ class WebUI:
             if os.path.isfile(os.path.join("./slaveEXE","boomerHazardServer.exe")):
                 return send_from_directory("./slaveEXE","boomerHazardServer.exe",as_attachment=True)
 
+        @app.route('/download_boomer_linux',methods=['GET'])
+        @self.auth_required_if_enabled
+        def downloadBoomerLinux():
+            if os.path.isfile(os.path.join("./slaveEXE","boomerHazardServer")):
+                return send_from_directory("./slaveEXE","boomerHazardServer",as_attachment=True)
+
 
         @app.route('/initBoomer',methods=["POST"])
         @self.auth_required_if_enabled

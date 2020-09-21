@@ -137,8 +137,10 @@
                         src="/transaction" scrolling="no" onload="this.height=200"></iframe>
             </div>
             <div id="worker" style="display:none;">
-                <p class="note">可以<a href="/download_boomer" style="color:red">下载此可执行文件</a>成为压测机(worker)，CMD命令：<font
-                        color="yellow">boomerHazardServer.exe -EtcdAddr etcd的ip:2379 [-Host 压测机(worker)的ip] [-Port 3000]</font></p>
+                <p class="note">可以下载此<a href="/download_boomer" style="color:red">windows可执行文件</a>|
+                    <a href="/download_boomer_linux" style="color:red">linux可执行文件</a>成为压测机(worker)
+                    CMD命令：<font
+                        color="yellow">boomerHazardServer -EtcdAddr etcd的ip:2379 [-Host 压测机(worker)的ip] [-Port 3000]</font></p>
                 <div style="text-align: center"><h3>已使用压测机(Worker)情况</h3></div>
                 <table id="workers">
                     <thead>
