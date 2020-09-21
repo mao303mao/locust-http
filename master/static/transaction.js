@@ -140,9 +140,9 @@ function makeAssertComponent(x){
                     <select name="`+x+"-assertType" +
                     `" lay-verify="required">
                         <option value="0">响应状态码=</option>
-                        <option value="1">响应字节长度<</option>
+                        <option value="1">响应字节长度></option>
                         <option value="2">响应字节长度=</option>
-                        <option value="3">响应字节长度></option>
+                        <option value="3">响应字节长度<</option>
                     </select>
                 </div>
                 <div class="layui-input-inline" style="width: 400px;">
