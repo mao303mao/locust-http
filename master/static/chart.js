@@ -108,7 +108,19 @@
         }
 
         reset(){
-        this.chart.setOption({
+            var seriesData = [];
+            var data = [];
+            for (var i=0; i<this.lines.length; i++) {
+                seriesData.push({
+                    name: this.lines[i],
+                    type: 'line',
+                    showSymbol: true,
+                    hoverAnimation: false,
+                    data: [],
+                });
+                data.push([]);
+            }
+            this.chart.setOption({
                 title: {
                     text: this.title,
                     x: 10,
@@ -142,7 +154,7 @@
                             color: '#5b6f66',
                         },
                     },
-                    data: [],
+                    data: data,
                 },
                 yAxis: {
                     type: 'value',
@@ -156,7 +168,7 @@
                         },
                     },
                 },
-                series: [],
+                series: seriesData,
                 grid: {x:60, y:70, x2:40, y2:40},
                 color: this.colors,
                 toolbox: {

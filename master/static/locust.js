@@ -28,6 +28,7 @@ $("a.reset-button").click(function(event) {
         window.responseTimeChart.reset();
         window.usersChart.reset();
         msgtip("已经重置");
+        //setTimeout(()=>{window.location.reload()},1000)
     })
     }
 );
