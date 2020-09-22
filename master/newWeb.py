@@ -138,7 +138,7 @@ class WebUI:
             # 调用 rpc 服务
             stub = boomerCall_pb2_grpc.BoomerCallServiceStub(channel)
             try:
-                initBommerRequest=makeInitBoomerRequest("jsons/tmp.json",self.masterHost)
+                initBommerRequest=makeInitBoomerRequest("jsons/main.json",self.masterHost)
             except Exception as e:
                 print(e)
                 return

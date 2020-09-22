@@ -1,4 +1,6 @@
 # coding:utf-8
+from gevent import monkey
+monkey.patch_all()
 import inspect
 import logging
 import signal
@@ -14,7 +16,6 @@ from locust.stats import print_error_report, print_percentile_stats, print_stats
 from locust.stats import StatsCSV, StatsCSVFileWriter
 from locust.user import User
 from locust.user.inspectuser import get_task_ratio_dict, print_task_ratio
-from locust.util.timespan import parse_timespan
 from locust.exception import AuthCredentialsError
 from newWeb import WebUI
 
