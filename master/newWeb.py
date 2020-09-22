@@ -143,7 +143,7 @@ class WebUI:
                 print(e)
                 return
             beforeClientIds=[ worker.id  for worker in  environment.runner.clients.values()]
-            response = stub.InitBommer(initBommerRequest)
+            response = stub.InitBommer(initBommerRequest,timeout=10)
             self.recvMesg[rpcServAddr] = response.message
             if response.status:
                 tryCount=0
@@ -172,7 +172,7 @@ class WebUI:
             channel = grpc.insecure_channel(rpcServAddr)  # 连接 rpc 服务器
             # 调用 rpc 服务
             stub = boomerCall_pb2_grpc.BoomerCallServiceStub(channel)
-            response = stub.EndBommer(boomerCall_pb2.EndBommerRequest())
+            response = stub.EndBommer(boomerCall_pb2.EndBommerRequest(),timeout=10)
             print("client received: %s, from %s" % (response.message,rpcServAddr))
             self.recvMesg[rpcServAddr] = response.message
             if response.status:
