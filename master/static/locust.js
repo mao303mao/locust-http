@@ -13,9 +13,15 @@ function appearStopped() {
 
 $("#box_stop a.stop-button").click(function(event) {
     event.preventDefault();
-    $.get($(this).attr("href"));
-    $("body").attr("class", "stopped");
-    appearStopped()
+    $.get($(this).attr("href"),
+        (rsp)=>{
+            if(rsp.status){
+                msgtip(rsp.message)
+            }else{
+                warntip(rsp.message)
+            }
+        }
+    );
 });
 
 $("a.reset-button").click(function(event) {

@@ -12,7 +12,6 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 	"time"
 
@@ -41,9 +40,6 @@ var quitSignal chan int=make(chan int)
 var boomerStatus = false
 // boomer等待退出
 func waitForQuit(gboomer *boomer.Boomer) {
-
-	wg := sync.WaitGroup{}
-	wg.Add(1)
 	quitByClient :=false
 	boomer.Events.Subscribe("boomer:quit", func() {
 		defer func(){
@@ -55,7 +51,7 @@ func waitForQuit(gboomer *boomer.Boomer) {
 			quitSignal<-1 // 释放下面EndBommer处理协程
 			fmt.Println("事件订阅中获取了非Client关闭Boomer的消息")
 		}
-		wg.Done()
+		fmt.Println("boomer服务已经关闭")
 	})
 	go func(){ // 此处添加通过EndBommer获取关闭boomer信号处理的代码
 		<-quitSignal
@@ -65,7 +61,6 @@ func waitForQuit(gboomer *boomer.Boomer) {
 			gboomer.Quit()
 		}
 	}()
-	wg.Wait()
 }
 
 // rpc服务接口
@@ -130,12 +125,9 @@ func (hes *BoomerCallService) InitBommer(ctx context.Context, req *proto.InitBom
 		fmt.Println(*task)
 		taskList = append(taskList, task)
 	}
-	go func() { // 开启一个协程等待结束
-		boomerStatus = true // boomer正在运行
-		globalBoomer.Run(taskList...)
-		waitForQuit(globalBoomer)
-		log.Println("boomer is shut down............")
-	}()
+	globalBoomer.Run(taskList...)
+	waitForQuit(globalBoomer)
+	boomerStatus = true // boomer正在运行
 	return &proto.BoomerCallResponse{
 		Status:  true,
 		Message: fmt.Sprintf("%s--已经成功获取创建Boomer事务请求", time.Now().Format("2006-01-02 15:04:05")),
@@ -143,7 +135,7 @@ func (hes *BoomerCallService) InitBommer(ctx context.Context, req *proto.InitBom
 }
 
 func (hes *BoomerCallService) EndBommer(ctx context.Context, req *proto.EndBommerRequest) (*proto.BoomerCallResponse, error) {
-	if !boomerStatus{ // 如果非运行，结束（暂时不加全局锁）
+	if !boomerStatus{ // 如果非运行，结束
 		return &proto.BoomerCallResponse{
 			Status:  false,
 			Message: fmt.Sprintf("%s--当前boomer没有运行，不需要关闭", time.Now().Format("2006-01-02 15:04:05")),

@@ -134,18 +134,23 @@ class WebUI:
             :param rpcServAddr:
             :return:
             """
-            channel = grpc.insecure_channel(rpcServAddr)  # 连接 rpc 服务器
-            # 调用 rpc 服务
-            stub = boomerCall_pb2_grpc.BoomerCallServiceStub(channel)
             try:
+                channel = grpc.insecure_channel(rpcServAddr)  # 连接 rpc 服务器
+                # 调用 rpc 服务
+                stub = boomerCall_pb2_grpc.BoomerCallServiceStub(channel)
                 initBommerRequest=makeInitBoomerRequest("jsons/main.json",self.masterHost)
             except Exception as e:
                 print(e)
                 return
             beforeClientIds=[ worker.id  for worker in  environment.runner.clients.values()]
-            response = stub.InitBommer(initBommerRequest,timeout=10)
-            self.recvMesg[rpcServAddr] = response.message
-            if response.status:
+            try:
+                response = stub.InitBommer(initBommerRequest,timeout=15)
+                self.recvMesg[rpcServAddr] = response.message
+            except Exception as e:
+                self.recvMesg[rpcServAddr] = "连接服务器异常：%s"%(e)
+                return
+
+            if response and response.status:
                 tryCount=0
                 newId=""
                 while tryCount<=50: # 5s的超时
@@ -169,13 +174,16 @@ class WebUI:
             :param rpcServAddr:
             :return:
             """
-            channel = grpc.insecure_channel(rpcServAddr)  # 连接 rpc 服务器
-            # 调用 rpc 服务
-            stub = boomerCall_pb2_grpc.BoomerCallServiceStub(channel)
-            response = stub.EndBommer(boomerCall_pb2.EndBommerRequest(),timeout=10)
-            print("client received: %s, from %s" % (response.message,rpcServAddr))
+            try:
+                channel = grpc.insecure_channel(rpcServAddr)  # 连接 rpc 服务器
+                # 调用 rpc 服务
+                stub = boomerCall_pb2_grpc.BoomerCallServiceStub(channel)
+                response = stub.EndBommer(boomerCall_pb2.EndBommerRequest(),timeout=15)
+            except Exception as e:
+                self.recvMesg[rpcServAddr]="连接服务器异常：%s"%(e)
+                return
             self.recvMesg[rpcServAddr] = response.message
-            if response.status:
+            if response and response.status:
                 if self.workedServser.__contains__(rpcServAddr):
                     del self.workedServser[rpcServAddr]
                 if self.recvMesg.__contains__(rpcServAddr):
@@ -282,9 +290,14 @@ class WebUI:
         @self.auth_required_if_enabled
         def stop():
             self.reporter_running_status=False #结束指标历史记录
-            if environment.runner.state not in (runners.STATE_STOPPING,runners.STATE_STOPPED,runners.STATE_INIT):
+            if environment.runner.state not in (runners.STATE_SPAWNING,runners.STATE_STOPPING,runners.STATE_STOPPED,runners.STATE_INIT):
                 environment.runner.stop()
-            return jsonify({'success': True,'message': 'Test stopped'})
+                return jsonify({'success': True,'message': '测试已经停止'})
+            elif environment.runner.state == runners.STATE_SPAWNING:
+                environment.runner.stop()
+                return jsonify({'success': False,'message': '测试用户增加中，请多试几次'})
+            else:
+                return jsonify({'success': False,'message': '测试没有运行'})
 
         @app.route("/stats/reset")
         @self.auth_required_if_enabled
