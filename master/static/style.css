@@ -164,6 +164,12 @@ a:hover {
     top: 60px;
     margin-left: -169px;
     z-index: 1;
+	border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radisu: 5px;
+    border: 3px solid #eee;
+    background: #132b21;
+    box-shadow: 0 0 60px rgba(0,0,0,0.3);
 }
 
 .start .padder, .edit .padder {
@@ -211,12 +217,6 @@ a:hover {
 
 .stopped .start, .stopping .start {
     display: none;
-    border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radisu: 5px;
-    border: 3px solid #eee;
-    background: #132b21;
-    box-shadow: 0 0 60px rgba(0,0,0,0.3);
 }
 
 .stopped .edit, .stopping .edit {display: none;}
@@ -251,7 +251,6 @@ a:hover {
     color: white;
 }
 .stopped .start a.close_link, .stopping .start a.close_link, .ready .start a.close_link, {display: inline;}
-.running .start a.close_link, .hatching .start a.close_link  {display: none;}
 
 .stopped .edit a.close_link, .stopping .edit a.close_link, .ready .edit a.close_link {display: none;}
 .running .edit a.close_link, .hatching .edit a.close_link {display: inline;}
