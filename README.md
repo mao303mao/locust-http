@@ -1,4 +1,4 @@
-# locust-hazard
+# locust-http
      base on locust and boomer, use etcd and gRPC to push http request and make locust test tasks。
      基于locust和boomer核心，使用基于etcd做为压测机服务发现，使用gRPC推送http请求事务描述信息，让压测机自己构造http接口测试任务。
      使用postman类似的节目管理http请求事务描述信息。
