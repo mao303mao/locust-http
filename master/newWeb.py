@@ -302,6 +302,10 @@ class WebUI:
         @app.route("/stats/reset")
         @self.auth_required_if_enabled
         def reset_stats():
+            if environment.runner.state == runners.STATE_STOPPED:
+                environment.runner.stats.clear_all()
+                environment.runner.exceptions = {}
+                return "ok"
             environment.runner.stats.reset_all()
             environment.runner.exceptions = {}
             return "ok"

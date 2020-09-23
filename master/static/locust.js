@@ -15,7 +15,7 @@ $("#box_stop a.stop-button").click(function(event) {
     event.preventDefault();
     $.get($(this).attr("href"),
         (rsp)=>{
-            if(rsp.status){
+            if(rsp.success){
                 msgtip(rsp.message)
             }else{
                 warntip(rsp.message)
