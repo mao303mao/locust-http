@@ -41,11 +41,12 @@ var boomerStatus = false
 // boomer等待退出
 func waitForQuit(gboomer *boomer.Boomer) {
 	quitByClient :=false
-	boomer.Events.Subscribe("boomer:quit", func() {
+	boomer.Events.SubscribeOnce("boomer:quit", func() {
 		defer func(){
 			r:=recover();if r!=nil{
 			fmt.Println("处理Boomer关闭遇到异常:",r)
 		}}()
+		fmt.Println("call the boomer:quit",quitByClient)
 		boomerStatus=false // 结束运行
 		if !quitByClient{
 			quitSignal<-1 // 释放下面EndBommer处理协程
