@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	htmlquery "github.com/antchfx/htmlquery"
+	"github.com/antchfx/htmlquery"
 	"github.com/kataras/iris/core/errors"
 	"github.com/levigross/grequests"
 	"github.com/myzhan/boomer"
@@ -339,6 +339,9 @@ func MakeTestTask(baseReqOptions *grequests.RequestOptions, reqSession *grequest
 			jsonData = reslvJsonData
 		}
 		reqOptions.Headers = ResolvingMapItem(taskWork.GetHeaders(), localStoredParamValues)
+		if reqOptions.Headers["User-Agent"]!=""{ // 此处为了兼容grequest的User-Agent的处理
+			reqOptions.UserAgent=reqOptions.Headers["User-Agent"]
+		}
 		reqOptions.Params = ResolvingMapItem(taskWork.GetParams(), localStoredParamValues)
 		reqOptions.Data = ResolvingMapItem(taskWork.GetDictData(), localStoredParamValues)
 		reqOptions.JSON = jsonData

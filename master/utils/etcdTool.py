@@ -1,6 +1,9 @@
 # coding:utf-8
 import etcd3
 import gevent
+import sys
+import logging
+logger = logging.getLogger(__name__)
 class EtcdTooler():
     etcdClient=None
     etcdAddr="127.0.0.1:2379"
@@ -23,7 +26,7 @@ class EtcdTooler():
 
 
     def __checkHeartBeat(self):
-        print("......连接etcd服务:%s,并心跳检查......" % (self.etcdAddr))
+        logger.info("......连接etcd服务:%s,并心跳检查......" % (self.etcdAddr))
         def __resetEtcdClient():
             self.etcdClient.close()
             ectdAddrReslv = self.etcdAddr.split(":")
@@ -38,10 +41,10 @@ class EtcdTooler():
                 gevent.sleep(2)  # 2s 检查一次
             except Exception as e:
                 if errCount>60: # 超过5分钟
-                    print(".....etcd尝试次数超过上限，退出....." )
-                    exit(2)
+                    logger.error(".....etcd尝试次数超过上限，退出......" )
+                    sys.exit(2)
                 gevent.sleep(5)
-                print(".....获取etcd的key：异常：%s。正在尝试第%d次....."%(e,errCount))
+                logger.info("......获取etcd的key：异常：%s。正在尝试第%d次......"%(e,errCount))
                 __resetEtcdClient()
                 errCount+=1
 
