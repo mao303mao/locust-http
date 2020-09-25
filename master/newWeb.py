@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import csv
 import logging
 import os.path
@@ -30,8 +29,6 @@ import grpc
 from utils.etcdTool import EtcdTooler
 from utils.requestMaker import makeInitBoomerRequest
 import json
-# from gevent.lock import RLock
-# servListLock=RLock()
 
 logger = logging.getLogger(__name__)
 greenlet_exception_handler = greenlet_exception_logger(logger)
@@ -126,7 +123,7 @@ class WebUI:
                 }
                 stats.history.append(r)
                 gevent.sleep(5)
-            print("结束了指标历史记录任务....")
+            logger.info("......结束了指标历史记录任务......")
 
         def initTask(self,rpcServAddr):
             """
@@ -140,7 +137,7 @@ class WebUI:
                 stub = boomerCall_pb2_grpc.BoomerCallServiceStub(channel)
                 initBommerRequest=makeInitBoomerRequest("jsons/main.json",self.masterHost)
             except Exception as e:
-                print(e)
+                logger.error(e)
                 return
             beforeClientIds=[ worker.id  for worker in  environment.runner.clients.values()]
             try:
@@ -223,7 +220,6 @@ class WebUI:
             else:
                 host = None
 
-            options = environment.parsed_options
             return render_template("index.html",
                                    state=environment.runner.state,
                                    is_distributed=is_distributed,
@@ -231,10 +227,6 @@ class WebUI:
                                    version=version,
                                    host=host,
                                    override_host_warning=override_host_warning,
-                                   num_users=options and options.num_users,
-                                   hatch_rate=options and options.hatch_rate,
-                                   step_users=options and options.step_users,
-                                   step_time=options and options.step_time,
                                    worker_count=worker_count,
                                    slave_count= slave_count,
                                    is_step_load=environment.step_load,
@@ -305,6 +297,7 @@ class WebUI:
             if environment.runner.state == runners.STATE_STOPPED:
                 environment.runner.stats.clear_all()
                 environment.runner.exceptions = {}
+                environment.host=None
                 return "ok"
             environment.runner.stats.reset_all()
             environment.runner.exceptions = {}
@@ -387,6 +380,13 @@ class WebUI:
                 xPretask["SaveParamChain"] = None
             return xPretask
 
+        @app.route('/resetTrans',methods=["POST"])
+        @self.auth_required_if_enabled
+        def resetTransation():
+            with open("./jsons/main.json",mode="w") as f:
+                f.write("{}")
+            return jsonify({'success': True,'message': ''})
+
         @app.route('/saveTrans',methods=["POST"])
         @self.auth_required_if_enabled
         def saveTransation():
@@ -465,7 +465,7 @@ class WebUI:
                     else:
                         PreTaskMark=len(transation.get("PreTask"))
                     if not transation.get("MainTask"):
-                        print("json中没有MainTask")
+                        logger.error("json中没有MainTask")
                         return render_template("transaction.html")
                     TestTaskMark=[]
                     TestTaskIdMark=[]
@@ -485,7 +485,7 @@ class WebUI:
                     }
                     return render_template("importedTransaction.html",transMark=transMark,transation=transation)
             except Exception as e:
-                print(e)
+                logger.error(e)
                 return render_template("transaction.html")
 
 

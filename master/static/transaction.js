@@ -567,5 +567,13 @@ $("#btn-backup-trans").click(function(event){
 });
 
 $("#btn-reset").click(function(event){
-    window.location="/transaction";
+    event.preventDefault();
+    $.post("/resetTrans",rsp=>{
+        layui.layer.msg("已经重置！")
+        setTimeout(()=>{
+            window.location="/transaction";
+        },1500)
+
+    })
+
 });

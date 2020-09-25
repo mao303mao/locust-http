@@ -1,6 +1,5 @@
 # coding:utf-8
-from gevent import monkey
-monkey.patch_all()
+from gevent import monkey;monkey.patch_all()
 import inspect
 import logging
 import signal
@@ -12,10 +11,9 @@ from locust.argument_parser import parse_options
 from locust.env import Environment
 from locust.log import setup_logging, greenlet_exception_logger
 import locust.stats as stats
-from locust.stats import print_error_report, print_percentile_stats, print_stats, stats_printer, stats_history
-from locust.stats import StatsCSV, StatsCSVFileWriter
+from locust.stats import print_error_report, print_percentile_stats, print_stats
+from locust.stats import StatsCSV
 from locust.user import User
-from locust.user.inspectuser import get_task_ratio_dict, print_task_ratio
 from locust.exception import AuthCredentialsError
 from newWeb import WebUI
 
@@ -66,20 +64,17 @@ def main():
         if options.loglevel.upper() in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
             setup_logging(options.loglevel, options.logfile)
         else:
-            sys.stderr.write("非法参数--loglevel. 合法值: DEBUG/INFO/WARNING/ERROR/CRITICAL\n")
+            sys.stderr.write("非法参数--log-level. 合法值: DEBUG/INFO/WARNING/ERROR/CRITICAL\n")
             sys.exit(1)
     logger = logging.getLogger(__name__)
-    greenlet_exception_handler = greenlet_exception_logger(logger)
-    
+
+    logger.warning("这里是locust hazard改造的web-ui专用版本，只支持以下命令：\n"+
+                   "\t"*6+"--master-host、--master-bind-port、--web-port、--web-auth、--tls-cert、--tls-key、--log-level")
+
     logger.info("options.master_host="+options.master_host)
     if not options.master_host:
         sys.stdout.write("请提供--master-host参数，以便通知压测机\n")
         exit(0)
-
-    logger.warning("这里是locust hazard改造的web-ui专用版本，"
-                    "[--headless、--worker、--slave、--expect-slaves、--step-time、--run-time、--web-port、"
-                     "--master、--master-bind-host、 --master-bind-port]命令参数无用！\n")
-
 
     try:
         import resource 
@@ -88,43 +83,16 @@ def main():
             # It does not work on all OS:es, but we should be no worse off for trying.
             resource.setrlimit(resource.RLIMIT_NOFILE, [10000, resource.RLIM_INFINITY])
     except:
-        logger.warning("System open file limit setting is not high enough for load testing, "
-                       "and the OS wouldnt allow locust to increase it by itself."
-                       "See https://docs.locust.io/en/stable/installation.html"
-                       "#increasing-maximum-number-of-open-files-limit for more info.")
+        logger.warning("System open file limit setting is not high enough for load testing, and the OS wouldnt allow locust to increase it by itself.\n"+
+                       "\t"*6+"See https://docs.locust.io/en/stable/installation.html#increasing-maximum-number-of-open-files-limit for more info.")
 
     # create locust Environment
     environment = create_environment(user_classes, options, events=locust.events)
-    
-    if options.show_task_ratio:
-        print("\n Task ratio per User class")
-        print( "-" * 80)
-        print_task_ratio(user_classes)
-        print("\n Total task ratio")
-        print("-" * 80)
-        print_task_ratio(user_classes, total=True)
-        sys.exit(0)
-
-    if options.show_task_ratio_json:
-        from json import dumps
-        task_data = {
-            "per_class": get_task_ratio_dict(user_classes),
-            "total": get_task_ratio_dict(user_classes, total=True)
-        }
-        print(dumps(task_data))
-        sys.exit(0)
 
     # 只使用master模式运行
-    runner = environment.create_master_runner()
+    runner = environment.create_master_runner(master_bind_host="*", master_bind_port=options.master_bind_port)
     runner.state=runners.STATE_STOPPED
-
-    if options.csv_prefix:
-        stats_csv_writer = StatsCSVFileWriter(
-            environment,stats.PERCENTILES_TO_REPORT,options.csv_prefix,options.stats_history_enabled
-        )
-    else:
-        stats_csv_writer = StatsCSV(environment,stats.PERCENTILES_TO_REPORT)
-
+    stats_csv_writer = StatsCSV(environment,stats.PERCENTILES_TO_REPORT)
 
     # 开启web-ui服务
     web_host = "0.0.0.0"
@@ -151,16 +119,7 @@ def main():
     # need access to the Environment, Runner or WebUI
     environment.events.init.fire(environment=environment, runner=runner, web_ui=web_ui)
 
-    stats_printer_greenlet = None
-    if not options.only_summary and (options.print_stats or (options.headless and not options.worker)):
-        # spawn stats printing greenlet
-        stats_printer_greenlet = gevent.spawn(stats_printer(runner.stats))
-        stats_printer_greenlet.link_exception(greenlet_exception_handler)
-
-    if options.csv_prefix:
-        gevent.spawn(stats_csv_writer.stats_writer).link_exception(greenlet_exception_handler)
-
-
+    stats_printer_greenlet = None # 指标打印协程
 
     def shutdown():
         """
