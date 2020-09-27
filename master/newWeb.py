@@ -243,6 +243,9 @@ class WebUI:
             if not  environment.runner.worker_count:
                  return jsonify({'success': False,'message': '没有可用的work, 不能运行测试'})
             assert request.method == "POST"
+            # 清理下统计信息
+            environment.runner.stats.reset_all()
+            environment.runner.exceptions = {}
             # 开启协程写入指标历史记录
             self.reporter_running_status=True
             gevent.spawn(stats_history,self)
@@ -254,16 +257,9 @@ class WebUI:
                 try:
                     run_seconds = parse_timespan(request.form["run_time"])
                 except ValueError:
-                    run_seconds = None
-            if (request.form.get("host")):
+                    pass
+            if request.form.get("host"):
                 environment.host = str(request.form["host"])
-            if environment.step_load:
-                step_user_count = int(request.form["step_user_count"])
-                step_duration = parse_timespan(str(request.form["step_duration"]))
-                environment.runner.start_stepload(user_count,hatch_rate,step_user_count,step_duration)
-                return jsonify(
-                    {'success': True,'message': 'Swarming started in Step Load Mode','host': environment.host})
-
             def stopRunAfterSecs(x):
                 if x>3600*6:
                     x=3600*6
@@ -275,6 +271,17 @@ class WebUI:
                 environment.runner.stop()
             if run_seconds and run_seconds>=30:
                 gevent.spawn(stopRunAfterSecs,run_seconds)
+            step_user_count=None
+            step_duration=None
+            try:
+                step_user_count = int(request.form["step_user_count"])
+                step_duration = parse_timespan(str(request.form["step_duration"]))
+            except:
+                pass
+            if environment.step_load and step_user_count and step_duration:
+                environment.runner.start_stepload(user_count,hatch_rate,step_user_count,step_duration)
+                return jsonify(
+                    {'success': True,'message': 'Swarming started in Step Load Mode','host': environment.host})
             environment.runner.start(user_count,hatch_rate)
             return jsonify({'success': True,'message': 'Swarming started','host': environment.host})
 
@@ -457,8 +464,12 @@ class WebUI:
         @app.route('/importedTrans',methods=['Get'])
         @self.auth_required_if_enabled
         def importedTrans():
+            if request.args.get("from_save",type=str,default="0")=="1":
+                transPath="./jsons/main.json"
+            else:
+                transPath="./jsons/tmp.json"
             try:
-                with open("./jsons/tmp.json",mode='rb') as f:
+                with open(transPath,mode='rb') as f:
                     transation=json.load(f)
                     if not transation.get("PreTask"):
                         PreTaskMark=0
@@ -647,21 +658,23 @@ class WebUI:
             stats = []
 
             for s in chain(sort_stats(self.environment.runner.stats.entries),[environment.runner.stats.total]):
-                stats.append({
-                    "method":                  s.method,
-                    "name":                    s.name,
-                    "safe_name":               escape(s.name,quote=False),
-                    "num_requests":            s.num_requests,
-                    "num_failures":            s.num_failures,
-                    "avg_response_time":       s.avg_response_time,
-                    "min_response_time":       0 if s.min_response_time is None else proper_round(s.min_response_time),
-                    "max_response_time":       proper_round(s.max_response_time),
-                    "current_rps":             s.current_rps,
-                    "current_fail_per_sec":    s.current_fail_per_sec,
-                    "median_response_time":    s.median_response_time,
-                    "ninetieth_response_time": s.get_response_time_percentile(0.9),
-                    "avg_content_length":      s.avg_content_length,
-                })
+                stats.append(
+                    {
+                        "method":                  s.method,
+                        "name":                    s.name,
+                        "safe_name":               escape(s.name,quote=False),
+                        "num_requests":            s.num_requests,
+                        "num_failures":            s.num_failures,
+                        "avg_response_time":       s.avg_response_time,
+                        "min_response_time":       0 if s.min_response_time is None else proper_round(s.min_response_time),
+                        "max_response_time":       proper_round(s.max_response_time),
+                        "current_rps":             s.current_rps,
+                        "current_fail_per_sec":    s.current_fail_per_sec,
+                        "median_response_time":    s.median_response_time,
+                        "ninetieth_response_time": s.get_response_time_percentile(0.9),
+                        "avg_content_length":      s.avg_content_length,
+                    }
+                )
 
             errors = []
             for e in environment.runner.errors.values():
@@ -689,10 +702,20 @@ class WebUI:
             is_distributed = isinstance(environment.runner,MasterRunner)
             if is_distributed:
                 workers = []
-                for worker in environment.runner.clients.values():
-                    worker.state!='missing' and workers.append({"id":        worker.id,"state": worker.state,"user_count": worker.user_count,
-                                    "cpu_usage": worker.cpu_usage})
-
+                missingClientIds=[]
+                for key,worker in environment.runner.clients.items():
+                    if worker.state==runners.STATE_MISSING:
+                        missingClientIds.append(key)
+                        continue
+                    workers.append({
+                        "id":        worker.id,
+                        "state":     worker.state,
+                        "user_count": worker.user_count,
+                        "cpu_usage": worker.cpu_usage
+                    })
+                # 移除missing的worker
+                for missingClientId in missingClientIds:
+                    del environment.runner.clients[missingClientId]
                 report["workers"] = workers
                 report["slaves"] = [{
                     "slave":x,

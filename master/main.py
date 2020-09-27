@@ -58,7 +58,7 @@ def main():
     
     # 解析命令行参数
     options = parse_options()
-
+    print(options)
     # 设置logging
     if not options.skip_log_setup:
         if options.loglevel.upper() in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
@@ -69,7 +69,7 @@ def main():
     logger = logging.getLogger(__name__)
 
     logger.warning("这里是locust hazard改造的web-ui专用版本，只支持以下命令：\n"+
-                   "\t"*6+"--master-host、--master-bind-port、--web-port、--web-auth、--tls-cert、--tls-key、--log-level")
+                   "\t--master-host、--master-bind-port、--web-port、--web-auth、--tls-cert、--tls-key、--log-level")
 
     logger.info("options.master_host="+options.master_host)
     if not options.master_host:
@@ -84,7 +84,7 @@ def main():
             resource.setrlimit(resource.RLIMIT_NOFILE, [10000, resource.RLIM_INFINITY])
     except:
         logger.warning("System open file limit setting is not high enough for load testing, and the OS wouldnt allow locust to increase it by itself.\n"+
-                       "\t"*6+"See https://docs.locust.io/en/stable/installation.html#increasing-maximum-number-of-open-files-limit for more info.")
+                       "\tSee https://docs.locust.io/en/stable/installation.html#increasing-maximum-number-of-open-files-limit for more info.")
 
     # create locust Environment
     environment = create_environment(user_classes, options, events=locust.events)
