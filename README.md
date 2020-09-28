@@ -21,11 +21,12 @@
   ### 1-先下载etcd并启动etcd：
   etcd.exe --listen-client-urls http://0.0.0.0:2379 --advertise-client-urls http://0.0.0.0:2379
       etcd下载地址： https://github.com/etcd-io/etcd/releases/download/v3.3.25/etcd-v3.3.25-windows-amd64.zip  
-  ### 2-在服务上启动matser（假定服务器ip：192.168.23.222）：python3 main.py --master-host=192.168.23.222
+  ### 2-在服务上启动matser（假定服务器ip：192.168.23.222）：
+       python3 main.py --master-host=192.168.23.222
   ### 3-可以直接从web页面的压测机管理下载编译好的exe（windows专用）
        根据操作系统(windows,linux)编译对应压测机（worker）端应用程序：go build boomerHazardServer.go
   ### 4-压测机端执行此程序（假定etcd的ip：192.168.23.222）
-  boomerHazardServer.exe -EtcdAddr 192.168.23.222:2379 [-Host 压测机ip] [-Port 3000]
+      boomerHazardServer.exe -EtcdAddr 192.168.23.222:2379 [-Host 压测机ip] [-Port 3000]
     
 # based open source project
   ## golang
