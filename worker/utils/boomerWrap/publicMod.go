@@ -11,9 +11,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
 	"github.com/antchfx/htmlquery"
-	"github.com/kataras/iris/core/errors"
+	"errors"
 	"github.com/levigross/grequests"
 	"github.com/myzhan/boomer"
 )

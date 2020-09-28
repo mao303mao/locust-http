@@ -125,7 +125,7 @@ class WebUI:
                 gevent.sleep(5)
             logger.info("......结束了指标历史记录任务......")
 
-        def initTask(self,rpcServAddr):
+        def initTask(self,rpcServAddr,initBommerRequest):
             """
             调用gRPC，通知初始化Boomer，改成同步处理
             :param rpcServAddr:
@@ -135,7 +135,6 @@ class WebUI:
                 channel = grpc.insecure_channel(rpcServAddr)  # 连接 rpc 服务器
                 # 调用 rpc 服务
                 stub = boomerCall_pb2_grpc.BoomerCallServiceStub(channel)
-                initBommerRequest=makeInitBoomerRequest("jsons/main.json",self.masterHost)
             except Exception as e:
                 logger.error(e)
                 return
@@ -164,6 +163,7 @@ class WebUI:
                 channel.close()
             except:
                 pass
+            return
 
         def shutTask(self,rpcServAddr):
             """
@@ -577,8 +577,11 @@ class WebUI:
             selectServAddrList = request.form.getlist("servAddr[]")
             if not selectServAddrList:
                 return jsonify({'success': False,'message': '请选择压力机'})
+            initBommerRequest,errMsg = makeInitBoomerRequest("jsons/main.json",self.masterHost)
+            if not initBommerRequest:
+                return jsonify({'success': False,'message': errMsg})
             for rpcServAddr in set(self.etcdt.servAddressList).intersection(set(selectServAddrList)):
-                initTask(self,rpcServAddr)
+                initTask(self,rpcServAddr,initBommerRequest)
             return jsonify({'success': True,'message': '已通知压测机初始化，请检查Workers中各压力机的最新消息'})
 
         @app.route('/shutdownBoomer',methods=["POST"])

@@ -73,6 +73,6 @@ def makeInitBoomerRequest(jsonFilePath:str,locustMaster):
                 MainTask.append(tmpMt)
             HttpProxy=jsonObj.get("HttpProxy")
             return boomerCall_pb2.InitBommerRequest(
-                isSession=True,LocustMaster=locustMaster,PreTask=PreTask,MainTask=MainTask,HttpProxy=HttpProxy)
+                isSession=True,LocustMaster=locustMaster,PreTask=PreTask,MainTask=MainTask,HttpProxy=HttpProxy),""
     except Exception as e:
-        print("%s\n"%(e)+traceback.format_exc())
+        return None,str(e)

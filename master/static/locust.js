@@ -292,7 +292,11 @@ $("#initBoomer").click(function(event){
                     return
                 }
                 $.post('./initBoomer',$("form#initBoomer").serialize(),function(jsonData){
-                     msgtip(jsonData.message)
+                    if(jsonData.success){
+                        msgtip(jsonData.message)
+                    }else{
+                        warntip(jsonData.message);
+                    }
                 })
             }
           );
