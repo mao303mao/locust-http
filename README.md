@@ -35,6 +35,7 @@
     "go.etcd.io/etcd/v3/clientv3"
     "golang.org/x/net/context"
     "google.golang.org/grpc"
+    "google.golang.org/protobuf"
   ## python
     pip安装：
     pip install grpcio
