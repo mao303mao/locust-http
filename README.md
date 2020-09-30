@@ -19,8 +19,6 @@
 		r:=recover();if r!=nil{
 			fmt.Println("处理Boomer关闭遇到异常:",r)
 		}}()
-     【3】boomer启动关闭并不能停止其socket连接，需要在github.com\myzhan\boomer\client_gomq.go(行55)中加上mq关闭处理：
-     		c.dealerSocket.Close()
          
 ## 启动参考：这里的ip、port都是例子，请根据实际情况设置
   ### 1-先下载etcd并启动etcd：
