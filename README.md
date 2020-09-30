@@ -14,9 +14,14 @@
      下面要删除
 		MaxIdleConnsPerHost: 2000, // 限制连接数
 		DisableKeepAlives:   false,
-     【2】boomer源码的runner中close channel某些情况化因为重复关闭会造成异常关闭。这里最好加上recover处理
-
-
+     【2】boomer源码的github.com\myzhan\boomer\runner.go(行221)中close channel某些情况化因为重复关闭会造成异常关闭, 这里最好加上recover处理：
+     		defer func(){
+		r:=recover();if r!=nil{
+			fmt.Println("处理Boomer关闭遇到异常:",r)
+		}}()
+     【3】boomer启动关闭并不能停止其socket连接，需要在github.com\myzhan\boomer\client_gomq.go(行55)中加上mq关闭处理：
+     		c.dealerSocket.Close()
+         
 ## 启动参考：这里的ip、port都是例子，请根据实际情况设置
   ### 1-先下载etcd并启动etcd：
   	etcd.exe --listen-client-urls http://0.0.0.0:2379 --advertise-client-urls http://0.0.0.0:2379
