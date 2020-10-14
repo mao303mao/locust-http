@@ -1,5 +1,4 @@
 # locust-http
-     base on locust and boomer, use etcd and gRPC to push http request and make locust test tasks。
      基于locust和boomer核心，使用基于etcd做为压测机服务发现。
      使用gRPC推送http请求事务描述信息，让压测机自己构造http接口测试任务。
      使用postman类似的界面管理http请求事务描述信息。
@@ -16,12 +15,12 @@
 		MaxIdleConnsPerHost: 2000, // 限制连接数
 		DisableKeepAlives:   false,
      【2】boomer源码的github.com\myzhan\boomer\runner.go(行221)中close channel某些情况化因为重复关闭会造成异常关闭, 这里最好加上recover处理：
-    ```go
+   
     defer func(){
 	r:=recover();if r!=nil{
 		fmt.Println("处理Boomer关闭遇到异常:",r)
     }}()
-    ```
+
          
 ## 启动参考：这里的ip、port都是例子，请根据实际情况设置
   ### 1-先下载etcd并启动etcd：
