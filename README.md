@@ -35,7 +35,7 @@
     pip install locust==1.2.3
   #### 启动命令：
     python3 main.py --master-host=192.168.23.222 [--step-load]
-  ### 3-压力器上，可以直接从web页面的压测机管理下载编译好的exe（windows专用）
+  ### 3-压力器上，可以直接从web页面的压测机管理下载编译好的执行程序（windows64，及linux64）
   压力器上，执行此程序（假定etcd的ip：192.168.23.222）
       boomerHazardServer.exe -EtcdAddr 192.168.23.222:2379 [-Host 压测机ip] [-Port 3000]
     
