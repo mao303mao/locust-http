@@ -16,15 +16,18 @@
 		MaxIdleConnsPerHost: 2000, // 限制连接数
 		DisableKeepAlives:   false,
      【2】boomer源码的github.com\myzhan\boomer\runner.go(行221)中close channel某些情况化因为重复关闭会造成异常关闭, 这里最好加上recover处理：
-     		defer func(){
-		r:=recover();if r!=nil{
-			fmt.Println("处理Boomer关闭遇到异常:",r)
-		}}()
+    ```go
+    defer func(){
+	r:=recover();if r!=nil{
+		fmt.Println("处理Boomer关闭遇到异常:",r)
+    }}()
+    ```
          
 ## 启动参考：这里的ip、port都是例子，请根据实际情况设置
   ### 1-先下载etcd并启动etcd：
+  etcd下载地址： https://github.com/etcd-io/etcd/releases/download/v3.3.25/etcd-v3.3.25-windows-amd64.zip  
   	etcd.exe --listen-client-urls http://0.0.0.0:2379 --advertise-client-urls http://0.0.0.0:2379
-       	etcd下载地址： https://github.com/etcd-io/etcd/releases/download/v3.3.25/etcd-v3.3.25-windows-amd64.zip  
+       
   ### 2-在服务上启动matser（假定服务器ip：192.168.23.222）：
        python3 main.py --master-host=192.168.23.222
   ### 3-可以直接从web页面的压测机管理下载编译好的exe（windows专用）
