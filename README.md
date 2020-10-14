@@ -23,11 +23,11 @@
 
          
 ## 启动参考：这里的ip、port都是例子，请根据实际情况设置
-  ### 1-先下载etcd并启动etcd：
+  ### 1-先下载etcd并在服务器上启动etcd：
   etcd下载地址： https://github.com/etcd-io/etcd/releases/download/v3.3.25/etcd-v3.3.25-windows-amd64.zip  
   	etcd.exe --listen-client-urls http://0.0.0.0:2379 --advertise-client-urls http://0.0.0.0:2379
        
-  ### 2-在服务上启动matser（假定服务器ip：192.168.23.222）：
+  ### 2-在服务器上启动matser（假定服务器ip：192.168.23.222）：
   #### python3-pip安装：
     pip install grpcio
     pip install grpcio-tools
@@ -35,20 +35,24 @@
     pip install locust==1.2.3
   #### 启动命令：
     python3 main.py --master-host=192.168.23.222 [--step-load]
-  ### 3-可以直接从web页面的压测机管理下载编译好的exe（windows专用）
-       根据操作系统(windows,linux)编译对应压测机（worker）端应用程序：go build boomerHazardServer.go
-  ### 4-压测机端执行此程序（假定etcd的ip：192.168.23.222）
+  ### 3-压力器上，可以直接从web页面的压测机管理下载编译好的exe（windows专用）
+  压力器上，执行此程序（假定etcd的ip：192.168.23.222）
       boomerHazardServer.exe -EtcdAddr 192.168.23.222:2379 [-Host 压测机ip] [-Port 3000]
     
-# 如果想要自己编译woker端，需要以下依赖库
-  ## golang：go get命令，一些库可能会出现与本地冲突（etcd的），需要自己删除冲突的
+## 如果想要自己编译woker端，需要以下依赖库
+  ### golang：go get命令，一些库可能会出现与本地冲突（etcd的），需要自己删除冲突的
     "github.com/levigross/grequests"
     "github.com/myzhan/boomer"
     "go.etcd.io/etcd/v3/clientv3"
     "golang.org/x/net/context"
     "google.golang.org/grpc"
     "google.golang.org/protobuf"
+  ### 编译
+  #### 根据操作系统(windows,linux)编译对应压测机（worker）端应用程序：
+  	go build boomerHazardServer.go
+  注：Windows编译linux，先在cmd执行set GOOS=linux 以及 set GOARCH=amd64
+  
  
-# 部分代码摘抄和参考了网络上的文章，致谢
+## 部分代码摘抄和参考了网络上的文章，致谢
    go-etcd-grpc :"https://www.cnblogs.com/wujuntian/p/12838041.html"
    
