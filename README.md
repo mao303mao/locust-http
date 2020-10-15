@@ -14,12 +14,12 @@
      下面要删除
 		MaxIdleConnsPerHost: 2000, // 限制连接数
 		DisableKeepAlives:   false,
-     【2】boomer源码的github.com\myzhan\boomer\runner.go(行221)中close channel某些情况化因为重复关闭会造成异常关闭, 这里最好加上recover处理：
-   
-    defer func(){
-	r:=recover();if r!=nil{
-		fmt.Println("处理Boomer关闭遇到异常:",r)
-    }}()
+     【2】boomer源码的github.com\myzhan\boomer\runner.go(行221)
+     中close channel某些情况化因为重复关闭会造成异常关闭, 这里最好加上recover处理：
+     defer func(){
+      	r:=recover();if r!=nil{
+	   fmt.Println("处理Boomer关闭遇到异常:",r)
+      }}()
 
          
 ## 启动参考：这里的ip、port都是例子，请根据实际情况设置
