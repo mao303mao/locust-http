@@ -48,6 +48,7 @@
     "golang.org/x/net/context"
     "google.golang.org/grpc"
     "google.golang.org/protobuf"
+    注：如果go get 以上额外的包不好解决冲突，可以用我worker/extra 的包
   ### 编译
   #### 根据操作系统(windows,linux)编译对应压测机（worker）端应用程序：
   	go build boomerHazardServer.go
