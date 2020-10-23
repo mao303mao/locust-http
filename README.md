@@ -42,6 +42,7 @@
 ## 如果想要自己编译woker端，需要以下依赖库
   ### golang：go get命令，一些库可能会出现与本地冲突（etcd的），需要自己删除冲突的
     "github.com/levigross/grequests"
+    "github.com/antchfx/htmlquery"
     "github.com/myzhan/boomer"
     "go.etcd.io/etcd/v3/clientv3"
     "golang.org/x/net/context"
