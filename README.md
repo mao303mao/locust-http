@@ -9,7 +9,6 @@
      拷贝了原版locust的main.py及webUI和前端部分代码进行修改。
      在boomer之上增加了gRPC服务，能解析master发来的http接口测试任务描述信息并生成boomer的任务
      boomer及grequests源码部分地方做了小改动--主要避免异常退出。
-     如果work端编译失败，请将错的地方(主要是配置连接数上限配置)删除即可
      【1】worker/boomerHazardServer.go 的 baseReqOptions := &grequests.RequestOptions{ // 基本的http请求配置
      下面要删除
 		MaxIdleConnsPerHost: 2000, // 限制连接数
@@ -48,7 +47,7 @@
     "golang.org/x/net/context"
     "google.golang.org/grpc"
     "google.golang.org/protobuf"
-    注：如果etcd及grpc的包不好解决冲突，可以用我worker_extra 文件夹下打包的zip中的，解压后再调整到你自己的GOPATH文件夹下
+    注：vendor.json中的root_path需要修改到比自己实际的路径名称
   ### 重新生成pb后命令参考(需要先安装proto工具)：
      protoc --go_out=plugins=grpc:. *.proto --python_out=.
   ### 编译
