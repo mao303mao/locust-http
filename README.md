@@ -47,7 +47,7 @@
     "golang.org/x/net/context"
     "google.golang.org/grpc"
     "google.golang.org/protobuf"
-    注：vendor.json中的root_path需要修改到比自己实际的路径名称
+    注：vendor.json中的rootPath需要修改为你实际的工程名称
   ### 重新生成pb后命令参考(需要先安装proto工具)：
      protoc --go_out=plugins=grpc:. *.proto --python_out=.
   ### 编译
