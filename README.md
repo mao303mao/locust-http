@@ -39,10 +39,10 @@
       boomerHazardServer -EtcdAddr 192.168.23.222:2379 [-Host 压力器自己的ip] [-Port 3000]
     
 ## master端提供了编译好的worker端，如果想要自己编译woker端，阅读以下内容
-  #### 1golang：第三那份package默认使用vendor下的，vendor.json中的rootPath需要修改为你实际的工程名称
-  #### 重新生成pb后命令参考(需要先安装proto工具)：
+  #### 1-golang：第三那份package默认使用vendor下的，vendor.json中的rootPath需要修改为你实际的工程名称
+  #### 2-重新生成pb后命令参考(需要先安装proto工具)：
      protoc --go_out=plugins=grpc:. *.proto --python_out=.
-  #### 编译，根据操作系统(windows,linux)编译对应压测机（worker）端应用程序：
+  #### 3-编译，根据操作系统(windows,linux)编译对应压测机（worker）端应用程序：
   	go build boomerHazardServer.go
   	注：Windows编译linux，先在cmd执行set GOOS=linux 以及 set GOARCH=amd64
   
