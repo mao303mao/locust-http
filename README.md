@@ -38,7 +38,7 @@
   压力器上，执行此程序（假定etcd的ip：192.168.23.222）
       boomerHazardServer -EtcdAddr 192.168.23.222:2379 [-Host 压力器自己的ip] [-Port 3000]
     
-## master端提个了编译好的哦worker端，如果想要自己编译woker端，阅读以下内容
+## master端提供了编译好的worker端，如果想要自己编译woker端，阅读以下内容
   #### 1golang：第三那份package默认使用vendor下的，vendor.json中的rootPath需要修改为你实际的工程名称
   #### 重新生成pb后命令参考(需要先安装proto工具)：
      protoc --go_out=plugins=grpc:. *.proto --python_out=.
