@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	proto "locust_hazard/proto"
+	proto "locust_http/proto"
 	"log"
 	"math/rand"
 	"regexp"

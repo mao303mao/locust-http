@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	proto "locust_hazard/proto"
-	"locust_hazard/utils/boomerWrap"
-	"locust_hazard/utils/gRpcEtcd"
+	proto "locust_http/proto"
+	"locust_http/utils/boomerWrap"
+	"locust_http/utils/gRpcEtcd"
 	"log"
 	"math/rand"
 	"net"
