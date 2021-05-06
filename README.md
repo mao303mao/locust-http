@@ -35,8 +35,7 @@
   #### 启动命令：
     python3 main.py --master-host=192.168.23.222 [--step-load]
   ### 3-压力器上，可以直接从web页面的压测机管理下载编译好的执行程序（windows64，及linux64）
-  压力器上，执行此程序
-      boomerHazardServer -EtcdAddr etcd的ip及端口 -Host 压力器自己的ip [-Port 3000]
+    boomerHazardServer -EtcdAddr etcd的ip及端口 -Host 压力器自己的ip [-Port 3000]
     
 ## master端提供了编译好的worker端，如果想要自己编译woker端，阅读以下内容
   #### 1-golang：第三那份package默认使用vendor下的，vendor.json中的rootPath需要修改为你实际的工程名称
