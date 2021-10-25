@@ -50,7 +50,7 @@ message BoomerCallResponse {
     bool status = 1;
     string message = 2;
 }
-// pkg\mod\github.com\golang\protobuf@v1.2.0 build 并替换GOPATH下bin/protoc-gen-go(与protoc同一个目录)
+// pkg\mod\github.com\golang\protobuf@v1.3.2 build 并替换GOPATH下bin/protoc-gen-go(与protoc同一个目录)
 // protoc --go_out=plugins=grpc:. *.proto
 // protoc --go_out=plugins=grpc:{输出目录}  {proto文件}
 // error gomq/zmtp: Got error while receiving greeting: Version 3.0 received does match expected version 3.1 解决方法：
