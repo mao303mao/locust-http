@@ -9,11 +9,7 @@
      拷贝了原版locust的main.py及webUI和前端部分代码进行修改。
      在boomer之上增加了gRPC服务，能解析master发来的http接口测试任务描述信息并生成boomer的任务
      boomer及grequests源码部分地方做了小改动--主要避免异常退出。
-     【1】worker/boomerHazardServer.go 的 baseReqOptions := &grequests.RequestOptions{ // 基本的http请求配置
-     下面要删除
-		MaxIdleConnsPerHost: 2000, // 限制连接数
-		DisableKeepAlives:   false,
-     【2】boomer源码的github.com\myzhan\boomer\runner.go(行221)
+     【1】boomer源码的github.com\myzhan\boomer\runner.go(行221)
      中close channel某些情况化因为重复关闭会造成异常关闭, 这里最好加上recover处理：
      defer func(){
       	r:=recover();if r!=nil{
@@ -35,12 +31,15 @@
   #### 启动命令：
     python3 main.py --master-host=192.168.23.222 [--step-load]
   ### 3-压力器上，可以直接从web页面的压测机管理下载编译好的执行程序（windows64，及linux64）
-    boomerHazardServer -EtcdAddr etcd的ip及端口 -Host 压力器自己的ip [-Port 3000]
+  压力器上，执行此程序（假定etcd的ip：192.168.23.222）
+      boomerHazardServer -EtcdAddr 192.168.23.222:2379 [-Host 压力器自己的ip] [-Port 3000]
     
 ## master端提供了编译好的worker端，如果想要自己编译woker端，阅读以下内容
   #### 1-golang：第三那份package默认使用vendor下的，vendor.json中的rootPath需要修改为你实际的工程名称
   #### 2-重新生成pb后命令参考(需要先安装proto工具)：
      protoc --go_out=plugins=grpc:. *.proto --python_out=.
+     遇到报错：error gomq/zmtp: Got error while receiving greeting: Version 3.0 received does match expected version 3.1 
+        解决方法：修改 mod\github.com\zeromq\gomq\zmtp\protocol.go 中的minorVersion uint8 = 1 改成 0
   #### 3-编译，根据操作系统(windows,linux)编译对应压测机（worker）端应用程序：
   	go build boomerHazardServer.go
   	注：Windows编译linux，先在cmd执行set GOOS=linux 以及 set GOARCH=amd64
