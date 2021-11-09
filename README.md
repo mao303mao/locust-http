@@ -41,8 +41,8 @@
        进入pkg\mod\github.com\golang\protobuf@v1.3.2，执行build命令生成执行文件protoc-gen-go，并替换GOPATH下bin/protoc-gen-go(与protoc同一个目录)
 - 2-在proto文件夹下，执行命令生成pb文件：protoc --go_out=plugins=grpc:. *.proto --python_out=.
 - 3-在页面上提交事务，worker会遇到报错：error gomq/zmtp: Got error while receiving greeting: Version 3.0 received does match expected version 3.1 
-        解决方法：修改 mod\github.com\zeromq\gomq\zmtp\protocol.go 中的minorVersion uint8 = 1 改成 0
-  #### 3-编译，根据操作系统(windows,linux)编译对应压测机（worker）端应用程序：
+     解决方法：修改 mod\github.com\zeromq\gomq\zmtp\protocol.go 中的minorVersion uint8 = 1 改成 0
+#### 3-编译，根据操作系统(windows,linux)编译对应压测机（worker）端应用程序：
   	go build boomerHazardServer.go
   	注：Windows编译linux，先在cmd执行set GOOS=linux 以及 set GOARCH=amd64
   
