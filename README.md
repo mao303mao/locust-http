@@ -35,12 +35,12 @@
       boomerHazardServer -EtcdAddr 192.168.23.222:2379 [-Host 压力器自己的ip] [-Port 3000]
     
 ## master端提供了编译好的worker端，如果想要自己编译woker端，阅读以下内容
-  #### 1-golang：采用了go mod管理包，get的包默认在[gopath]/pkg/mod中
-  #### 2-如果需要重新生成pb：
-     ##### 1- 需要先安装proto工具，注意对应protoc-gen-go需要v1.3.2)：
+ #### 1-golang：采用了go mod管理包，get的包默认在[gopath]/pkg/mod中
+ #### 2-如果需要重新生成pb：
+     - 1- 需要先安装proto工具，注意对应protoc-gen-go需要v1.3.2)：
        进入pkg\mod\github.com\golang\protobuf@v1.3.2，执行build命令生成执行文件protoc-gen-go，并替换GOPATH下bin/protoc-gen-go(与protoc同一个目录)
-     ##### 2-在proto文件夹下，执行命令生成pb文件：protoc --go_out=plugins=grpc:. *.proto --python_out=.
-     ##### 3-在页面上提交事务，worker会遇到报错：error gomq/zmtp: Got error while receiving greeting: Version 3.0 received does match expected version 3.1 
+     - 2-在proto文件夹下，执行命令生成pb文件：protoc --go_out=plugins=grpc:. *.proto --python_out=.
+     - 3-在页面上提交事务，worker会遇到报错：error gomq/zmtp: Got error while receiving greeting: Version 3.0 received does match expected version 3.1 
         解决方法：修改 mod\github.com\zeromq\gomq\zmtp\protocol.go 中的minorVersion uint8 = 1 改成 0
   #### 3-编译，根据操作系统(windows,linux)编译对应压测机（worker）端应用程序：
   	go build boomerHazardServer.go
