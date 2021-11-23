@@ -37,7 +37,7 @@ func GetLocalNetIpV4() string {
 				if strings.Index(ipnet.IP.String(), "192.168.") == 0 { // 优先C段私有地址
 					return ipnet.IP.String()
 				}
-				if strings.Index(ipnet.IP.String(), "10.10.") == 0 { // A段私有地址
+				if strings.Index(ipnet.IP.String(), "10.") == 0 { // A段私有地址
 					return ipnet.IP.String()
 				}
 				if strings.Index(ipnet.IP.String(), "172.") == 0 { // B段私有地址
