@@ -69,7 +69,7 @@ def main():
     logger = logging.getLogger(__name__)
 
     logger.warning("这里是locust hazard改造的web-ui专用版本，只支持以下命令：\n"+
-                   "\t--master-host、--master-bind-port、--web-port、--web-auth、--tls-cert、--tls-key、--log-level")
+                   "\t--master-host(必须)、--master-bind-port、--web-port、--web-auth、--tls-cert、--tls-key、--log-level")
 
     logger.info("options.master_host="+options.master_host)
     if not options.master_host:
@@ -153,15 +153,17 @@ def main():
     
     # install SIGTERM handler
     def sig_term_handler():
-        logger.info("Got SIGTERM signal")
+        logger.info("Got SIGTERM signal, shutdown.......")
         shutdown()
     gevent.signal_handler(signal.SIGTERM, sig_term_handler)
     
     try:
         logger.info("Starting Locust %s" % version)
         main_greenlet.join()
+        logger.info("The main_greenlet finished, shutdown.......")
         shutdown()
     except KeyboardInterrupt as e:
+        logger.error("Got the KeyboardInterrupt, shutdown.......")
         shutdown()
 
 if __name__=='__main__':

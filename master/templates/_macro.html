@@ -252,13 +252,13 @@
 {% endmacro %}
 
 
-{% macro testwork(testwork,index) %}
+{% macro testwork(testwork,prefix) %}
 <div class="http-request">
     <div class="layui-form-item">
         <div class="layui-inline">
             <label class="layui-form-label">Method</label>
             <div class="layui-input-inline" style="width: 80px;">
-                <select name="testwork-{{index}}-method">
+                <select name="{{prefix}}-method">
                     {% if testwork.Method=="Get" %}
                     <option value="Get" selected>Get</option>
                     {% else %}
@@ -273,7 +273,7 @@
             </div>
             <label class="layui-form-mid">URL</label>
             <div class="layui-input-inline" style="width: 600px;">
-                <input type="text" lay-verify="required" name="testwork-{{index}}-urlPath"
+                <input type="text" lay-verify="required" name="{{prefix}}-urlPath"
                        placeholder="参数用{@参数名@}代替" autocomplete="off"
                        class="layui-input" value="{{testwork.UrlPath}}">
             </div>
@@ -292,7 +292,7 @@
             <div class="layui-tab-item layui-show">
                 <label class="layui-form-mid">请求头格式：名称+对应值</label>
                 <button type="button" class="layui-btn layui-btn-warm layui-btn-sm " title="添加"
-                        onclick="addKeyValue(this,'testwork-{{index}}-headers')"><i
+                        onclick="addKeyValue(this,'{{prefix}}-headers')"><i
                         class="layui-icon">&#xe654;</i>
                 </button>
                 {% if testwork.Headers %}
@@ -300,11 +300,11 @@
                 <div style="padding: 10px 0 0 80px;" class="keyvalue-component">
                     <div class="layui-inline">
                         <div class="layui-input-inline" style="width: 200px;">
-                            <input type="text" lay-verify="required" name="testwork-{{ loop.index}}-headers-key"
+                            <input type="text" lay-verify="required" name="{{prefix}}-headers-key"
                                    placeholder="key" autocomplete="off" class="layui-input" value="{{ key }}">
                         </div>
                         <div class="layui-input-inline" style="width: 400px;">
-                            <input type="text" name="testwork-{{ loop.index}}-headers-value"
+                            <input type="text" name="{{prefix}}-headers-value"
                                    placeholder="value,参数用{@参数名@}代替" autocomplete="off" class="layui-input"
                                    value="{{ value }}">
                         </div>
@@ -318,7 +318,7 @@
             <div class="layui-tab-item">
                 <label class="layui-form-mid">Params格式：名称+对应值</label>
                 <button type="button" class="layui-btn layui-btn-warm layui-btn-sm " title="添加"
-                        onclick="addKeyValue(this,'testwork-{{index}}-params')"><i
+                        onclick="addKeyValue(this,'{{prefix}}-params')"><i
                         class="layui-icon">&#xe654;</i>
                 </button>
                 {% if testwork.Params %}
@@ -326,11 +326,11 @@
                 <div style="padding: 10px 0 0 80px;" class="keyvalue-component">
                     <div class="layui-inline">
                         <div class="layui-input-inline" style="width: 200px;">
-                            <input type="text" lay-verify="required" name="{{prefix}}-{{ loop.index }}-params-key"
+                            <input type="text" lay-verify="required" name="{{prefix}}-params-key"
                                    placeholder="key" autocomplete="off" class="layui-input" value="{{ key }}">
                         </div>
                         <div class="layui-input-inline" style="width: 400px;">
-                            <input type="text" name="{{prefix}}-{{ loop.index }}-params-value"
+                            <input type="text" name="{{prefix}}-params-value"
                                    placeholder="value,参数用{@参数名@}代替" autocomplete="off" class="layui-input"
                                    value="{{ value }}">
                         </div>
@@ -344,7 +344,7 @@
             <div class="layui-tab-item">
                 <label class="layui-form-mid">FORM字段格式：名称+对应值</label>
                 <button type="button" class="layui-btn layui-btn-warm layui-btn-sm " title="添加"
-                        onclick="addKeyValue(this,'testwork-{{index}}-dictdata')"><i
+                        onclick="addKeyValue(this,'{{prefix}}-dictdata')"><i
                         class="layui-icon">&#xe654;</i>
                 </button>
                 {% if testwork.DictData %}
@@ -353,11 +353,11 @@
                     <div class="layui-inline">
                         <div class="layui-input-inline" style="width: 200px;">
                             <input type="text" lay-verify="required"
-                                   name="{{prefix}}-{{ loop.index }}-dictdata-key"
+                                   name="{{ prefix }}-dictdata-key"
                                    placeholder="key" autocomplete="off" class="layui-input" value="{{ key }}">
                         </div>
                         <div class="layui-input-inline" style="width: 400px;">
-                            <input type="text" name="{{prefix}}-{{ loop.index }}-dictdata-value"
+                            <input type="text" name="{{ prefix}}-dictdata-value"
                                    placeholder="value,参数用{@参数名@}代替" autocomplete="off" class="layui-input"
                                    value="{{ value }}">
                         </div>
@@ -372,7 +372,7 @@
                 <div class="layui-form-item layui-form-text">
                     <label class="layui-form-label">Json内容</label>
                     <div class="layui-input-block">
-                                        <textarea name="testwork-{{index}}-jsondata" placeholder="请输入Json内容,参数用{@参数名@}代替"
+                                        <textarea name="{{prefix}}-jsondata" placeholder="请输入Json内容,参数用{@参数名@}代替"
                                                   class="layui-textarea">{{ testwork.JsonData }}</textarea>
                     </div>
                 </div>
@@ -381,7 +381,7 @@
                 <div class="layui-form-item layui-form-text">
                     <label class="layui-form-label">Raw内容</label>
                     <div class="layui-input-block">
-                                        <textarea name="testwork-{{index}}-rawdata" placeholder="请输入Raw内容,参数用{@参数名@}代替"
+                                        <textarea name="{{prefix}}-rawdata" placeholder="请输入Raw内容,参数用{@参数名@}代替"
                                                   class="layui-textarea">{{ testwork.RawData }}</textarea>
                     </div>
                 </div>
@@ -389,14 +389,14 @@
             <div class="layui-tab-item">
                 <label class="layui-form-mid">断言格式：判断类型+比较值</label>
                 <button type="button" class="layui-btn layui-btn-warm layui-btn-sm " title="添加"
-                        onclick="addAssert(this,'testwork-{{index}}')"><i class="layui-icon">&#xe654;</i>
+                        onclick="addAssert(this,'{{prefix}}')"><i class="layui-icon">&#xe654;</i>
                 </button>
                 {% if testwork.AssertChain%}
                 {%- for tac in testwork.AssertChain -%}
                 <div style="padding: 10px 0 0 80px;" class="assert-component">
                     <div class="layui-inline">
                         <div class="layui-input-inline" style="width: 200px;">
-                            <select name="testwork-{{index}}-assertType" lay-verify="required">
+                            <select name="{{prefix}}-assertType" lay-verify="required">
                                 {% if tac.AssertType==0 %}
                                 <option value="0" selected>响应状态码=</option>
                                 {% else %}
@@ -420,7 +420,7 @@
                             </select>
                         </div>
                         <div class="layui-input-inline" style="width: 400px;">
-                            <input type="text" name="testwork-{{index}}-assertValue"
+                            <input type="text" name="{{prefix}}-assertValue"
                                    lay-verify="required|number"
                                    placeholder="比较值" autocomplete="off" class="layui-input" value="{{ tac.RuleValue }}">
                         </div>

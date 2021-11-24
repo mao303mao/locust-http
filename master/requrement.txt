@@ -1,0 +1,4 @@
+grpcio
+grpcio-tools
+etcd3
+locust==1.2.3

@@ -131,6 +131,7 @@ class WebUI:
             :param rpcServAddr:
             :return:
             """
+            s=datetime.datetime.now()
             try:
                 channel = grpc.insecure_channel(rpcServAddr)  # 连接 rpc 服务器
                 # 调用 rpc 服务
@@ -140,8 +141,10 @@ class WebUI:
                 return
             beforeClientIds=[ worker.id  for worker in  environment.runner.clients.values()]
             try:
+                print(initBommerRequest)
                 response = stub.InitBommer(initBommerRequest,timeout=15)
                 self.recvMesg[rpcServAddr] = response.message
+
             except Exception as e:
                 self.recvMesg[rpcServAddr] = "连接服务器异常：%s"%(e)
                 return
@@ -244,7 +247,7 @@ class WebUI:
                  return jsonify({'success': False,'message': '没有可用的work, 不能运行测试'})
             assert request.method == "POST"
             # 清理下统计信息
-            environment.runner.stats.reset_all()
+            environment.runner.stats.clear_all()
             environment.runner.exceptions = {}
             # 开启协程写入指标历史记录
             self.reporter_running_status=True

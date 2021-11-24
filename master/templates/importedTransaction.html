@@ -117,7 +117,7 @@
                 <div class="fakeclass-prework-{{loop.index}}">
                      {{ mcr.prtask(mtask.PreWork,"testtask-"~loop.index~"-prework") }}
                 </div>
-                {{ mcr.testwork(mtask.TestWork,loop.index) }}
+                {{ mcr.testwork(mtask.TestWork,"testwork-"~loop.index) }}
             </div>
         </div>
         {% endfor %}
