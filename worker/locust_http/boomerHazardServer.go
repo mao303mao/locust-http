@@ -16,7 +16,7 @@ import (
 	"locust_http/utils/gRpcEtcd"
 	"github.com/coreos/etcd/clientv3"
 
-	proto "doba.com/locust_http/proto"
+	proto "locust_http/proto"
 
 	"github.com/levigross/grequests" // 可以替换fasthttp
 	"github.com/myzhan/boomer"
