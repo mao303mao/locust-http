@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	proto "doba.com/locust_http/proto"
+	proto "locust_http/proto"
 	"github.com/antchfx/htmlquery"
 	"github.com/levigross/grequests"
 	"github.com/myzhan/boomer"

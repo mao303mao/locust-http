@@ -1,7 +1,6 @@
 package gRpcEtcd
 
-// 此处选摘“疯一样的狼人”的文档
-// https://www.cnblogs.com/wujuntian/p/12838041.html
+// 此处选摘“疯一样的狼人”的文档(https://www.cnblogs.com/wujuntian/p/12838041.html)
 import (
 	"log"
 	"net"

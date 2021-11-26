@@ -12,8 +12,8 @@ import (
 	"syscall"
 	"time"
 
-	"doba.com/locust_http/utils/boomerWrap"
-	"doba.com/locust_http/utils/gRpcEtcd"
+	"locust_http/utils/boomerWrap"
+	"locust_http/utils/gRpcEtcd"
 	"github.com/coreos/etcd/clientv3"
 
 	proto "doba.com/locust_http/proto"
