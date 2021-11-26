@@ -3,7 +3,7 @@ package gRpcEtcd
 // 此处选摘“疯一样的狼人”的文档
 // https://www.cnblogs.com/wujuntian/p/12838041.html
 import (
-	"fmt"
+	"log"
 	"net"
 	"strconv"
 	"strings"
@@ -28,7 +28,7 @@ func NewEtcdClient(etcdAddr string) (*clientv3.Client, error) {
 func GetLocalNetIpV4() string {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return "127.0.0.1"
 	}
 	for _, value := range addrs {
@@ -60,16 +60,16 @@ func Register(cli *clientv3.Client, serviceName, serverAddr string, ttl int64) e
 	ticker := time.NewTicker(time.Second * time.Duration(ttl))
 	go func() {
 		key := "/" + schema + "/" + serviceName + "/" + serverAddr
-		fmt.Println(key)
+		log.Println("注册boomerhazard服务",key)
 		for {
 			resp, err := cli.Get(context.Background(), key)
 			// fmt.Printf("resp:%+v\n", resp)
 			if err != nil {
-				fmt.Printf("获取服务地址失败：%s\n", err)
+				log.Printf("获取服务地址失败：%s\n", err)
 			} else if resp.Count == 0 { // 未注册
 				err = KeepAlive(cli, serviceName, serverAddr, ttl)
 				if err != nil {
-					fmt.Printf("保持连接失败：%s\n", err)
+					log.Printf("保持连接失败：%s\n", err)
 				}
 			}
 			<-ticker.C
@@ -84,7 +84,7 @@ func KeepAlive(cli *clientv3.Client, serviceName, serverAddr string, ttl int64) 
 	// 创建租约
 	leaseResp, err := cli.Grant(context.Background(), ttl)
 	if err != nil {
-		fmt.Printf("创建租期失败：%s\n", err)
+		log.Printf("创建租期失败：%s\n", err)
 		return err
 	}
 
@@ -92,14 +92,14 @@ func KeepAlive(cli *clientv3.Client, serviceName, serverAddr string, ttl int64) 
 	key := "/" + schema + "/" + serviceName + "/" + serverAddr
 	_, err = cli.Put(context.Background(), key, serverAddr, clientv3.WithLease(leaseResp.ID))
 	if err != nil {
-		fmt.Printf("注册服务失败：%s\n", err)
+		log.Printf("注册服务失败：%s\n", err)
 		return err
 	}
 
 	// 建立长连接
 	ch, err := cli.KeepAlive(context.Background(), leaseResp.ID)
 	if err != nil {
-		fmt.Printf("建立长连接失败：%s\n", err)
+		log.Printf("建立长连接失败：%s\n", err)
 		return err
 	}
 
@@ -141,7 +141,7 @@ func GetKey(cli *clientv3.Client, keyName string) []map[string]string {
 	}
 	var kvMap []map[string]string
 	for k, v := range res.Kvs {
-		fmt.Println("获取到Kvs的值", k, string(v.Key), string(v.Value))
+		log.Println("获取到Kvs的值", k, string(v.Key), string(v.Value))
 		kvMap = append(kvMap, map[string]string{"key": string(v.Key), "value": string(v.Value)})
 	}
 	return kvMap

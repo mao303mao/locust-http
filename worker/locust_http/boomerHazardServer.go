@@ -12,11 +12,11 @@ import (
 	"syscall"
 	"time"
 
-	"locust_http/utils/boomerWrap"
-	"locust_http/utils/gRpcEtcd"
+	"doba.com/locust_http/utils/boomerWrap"
+	"doba.com/locust_http/utils/gRpcEtcd"
 	"github.com/coreos/etcd/clientv3"
 
-	proto "locust_http/proto"
+	proto "doba.com/locust_http/proto"
 
 	"github.com/levigross/grequests" // 可以替换fasthttp
 	"github.com/myzhan/boomer"
@@ -132,7 +132,7 @@ func (hes *BoomerCallService) InitBommer(ctx context.Context, req *proto.InitBom
 			Weight: int(testTask.GetTaskWeight()),
 			Fn:     boomerWrap.MakeTestTask(baseReqOptions, reqSession, testTask, globalBoomer, storedParamValues),
 		}
-		fmt.Println(*task)
+		log.Printf("获取任务:%v\n",task.Name)
 		taskList = append(taskList, task)
 	}
 	globalBoomer.Run(taskList...)
@@ -165,7 +165,7 @@ func main() {
 	// 监听网络
 	listener, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", *Port))
 	if err != nil {
-		fmt.Println("监听网络失败：", err)
+		log.Println("监听网络失败：", err)
 		return
 	}
 	defer listener.Close()
@@ -181,13 +181,13 @@ func main() {
 
 	cli, err = gRpcEtcd.NewEtcdClient(*EtcdAddr)
 	if err != nil {
-		fmt.Println("创建ETCD客户端失败：", err)
+		log.Println("创建ETCD客户端失败：", err)
 		return
 	}
 	// println(fmt.Sprintf("%n"),cli.ActiveConnection())
 
 	serverAddr := fmt.Sprintf("%s:%d", *Host, *Port)
-	fmt.Printf("服务地址: %s\n", serverAddr)
+	log.Printf("服务地址: %s\n", serverAddr)
 	gRpcEtcd.Register(cli, ServiceName, serverAddr, 5)
 
 	// 关闭信号处理
@@ -206,7 +206,7 @@ func main() {
 	// 监听服务
 	err = srv.Serve(listener)
 	if err != nil {
-		fmt.Println("gRPC服务的监听异常：", err)
+		log.Println("gRPC服务的监听异常：", err)
 		return
 	}
 }

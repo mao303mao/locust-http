@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	proto "locust_http/proto"
+	proto "doba.com/locust_http/proto"
 	"github.com/antchfx/htmlquery"
 	"github.com/levigross/grequests"
 	"github.com/myzhan/boomer"
@@ -367,7 +367,7 @@ func MakeTestTask(baseReqOptions *grequests.RequestOptions, reqSession *grequest
 		defer resp.Close()
 		contentLength := len(resp.Bytes())
 		defer resp.ClearInternalBuffer()
-		log.Println(resp.StatusCode, contentLength, responseTime)
+		log.Printf("事务[%s]时长%dms,最终请求的响应码是%d|响应长度是%d",testTask.TaskName, responseTime,resp.StatusCode,contentLength)
 		if resp.StatusCode >= 400 {
 			gBoomer.RecordFailure("http", testTask.GetTaskName(), responseTime, fmt.Sprintf("状态码有误，为[%d]", resp.StatusCode))
 			return
