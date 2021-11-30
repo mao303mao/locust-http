@@ -32,7 +32,7 @@
     python3 main.py --master-host=192.168.23.222 [--step-load]
   ### 3-压力器上，可以直接从web页面的压测机管理下载编译好的执行程序（windows64，及linux64）
   压力器上，执行此程序（假定etcd的ip：192.168.23.222）
-      boomerHazardServer -EtcdAddr 192.168.23.222:2379 [-Host 压力器自己的ip] [-Port 3000]
+      boomerHazardServer -EtcdAddr 192.168.23.222:2379 -Host 压力器自己的ip [-Port 3000]
     
 ## master端提供了编译好的worker端，如果想要自己编译woker端，阅读以下内容
  #### 1-golang：采用了go mod管理包，get的包默认在[gopath]/pkg/mod中
